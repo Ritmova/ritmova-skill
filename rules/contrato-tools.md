@@ -24,12 +24,12 @@ metadata:
 
 Argumentos que o Claude manda:
 
-| Campo        | Tipo                                        | Default      | Observação                                     |
-| ------------ | ------------------------------------------- | ------------ | ---------------------------------------------- |
-| `prompt`     | string                                      | —            | descrição da imagem (obrigatório)              |
-| `qualidade`  | `"medium"` \| `"high"`                      | `"medium"`   | `high` só no Pro; no Free volta erro de upsell |
-| `formato`    | `"quadrada"` \| `"retrato"` \| `"paisagem"` | `"quadrada"` | retrato = 9:16                                 |
-| `quantidade` | int 1–4                                     | `1`          | variações                                      |
+| Campo        | Tipo                        | Default      | Observação                                     |
+| ------------ | --------------------------- | ------------ | ---------------------------------------------- |
+| `prompt`     | string                      | —            | descrição da imagem (obrigatório)              |
+| `qualidade`  | `"medium"` \| `"high"`      | `"medium"`   | `high` só no Pro; no Free volta erro de upsell |
+| `formato`    | `"quadrada"` \| `"retrato"` | `"quadrada"` | retrato = 9:16 (vertical livre)                |
+| `quantidade` | int 1–4                     | `1`          | variações                                      |
 
 Chamada (o que o Claude emite):
 
@@ -223,10 +223,12 @@ Retorno:
 
 ---
 
-## Erro de saldo (vale para todas)
+## Erros de upsell (estruturados — nunca 500)
 
-Quando o saldo é ≤ 0 (ou `high` no Free), o Claude recebe um **erro estruturado de upsell** em
-vez do resultado — para explicar e oferecer recarga, nunca um 500:
+A rota devolve `isError: true` + `structuredContent.code` em vez do resultado. **Explique e
+ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
+
+**Pro sem saldo de tokens** — `SEM_TOKENS` (gate de saldo), com pacotes de recarga:
 
 ```jsonc
 {
@@ -240,6 +242,7 @@ vez do resultado — para explicar e oferecer recarga, nunca um 500:
       "resource": "tokens",
       "packages": [
         { "name": "Mini", "tokens": 30, "priceBrl": 34.9 },
+        { "name": "Padrão", "tokens": 50, "priceBrl": 54.9 },
         { "name": "Turbo", "tokens": 100, "priceBrl": 109.9 },
       ],
     },
@@ -247,8 +250,15 @@ vez do resultado — para explicar e oferecer recarga, nunca um 500:
 }
 ```
 
-Ao receber `isError: true` com `code: "SEM_TOKENS"`: **explique** o saldo e **ofereça** os
-pacotes do `upsell` — não tente regenerar nem trate como falha técnica.
+**Free** — cota/qualidade: o upsell é **assinar o Pro** (`upsell.suggestedPlan: "pro"`, **sem**
+`packages`); aguardar o reset mensal também resolve cota.
+
+| code              | quando                                              |
+| ----------------- | --------------------------------------------------- |
+| `HIGH_BLOCKED`    | pediu `qualidade: "high"` (exclusivo do Pro)        |
+| `QUOTA_EXCEEDED`  | estourou posts/carrosséis/motion do mês             |
+| `SLIDES_EXCEEDED` | slides acima do máximo do plano (ou não informados) |
+| `PAUSED`          | geração do Free pausada (kill switch)               |
 
 ---
 

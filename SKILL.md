@@ -31,10 +31,11 @@ Para montar/renderizar o motion, use [`/motion-design-ritmova`](../motion-design
 
 ## Tokens e saldo
 
-- O uso é pago em **tokens**. **Free** tem cota e não libera imagem em `qualidade: "high"`; **Pro** libera.
-- Se o **saldo acabar** (ou pedir `high` no Free), a rota devolve um **erro de upsell**
-  (`SEM_TOKENS`) com pacotes — **explique e ofereça a recarga**, não trate como erro técnico.
-  Pacotes: **Mini** 30 tokens (R$ 34,90) · **Turbo** 100 tokens (R$ 109,90).
+- O **Pro** é pago em **tokens**; o **Free** tem **cota** (não tokens) e não libera `qualidade: "high"`.
+- **Pro sem saldo** → `SEM_TOKENS`: upsell com **pacotes de tokens** — **explique e ofereça a recarga**.
+  Pacotes: **Mini** 30 (R$ 34,90) · **Padrão** 50 (R$ 54,90) · **Turbo** 100 (R$ 109,90).
+- **Free pedindo `high`** → `HIGH_BLOCKED`, e **cota estourada** → `QUOTA_EXCEEDED`/`SLIDES_EXCEEDED`
+  (ou `PAUSED`): o upsell é **assinar o Pro** (não é recarga de tokens); aguardar o reset também resolve cota.
 
 ## Ao atender o usuário
 
