@@ -77,13 +77,15 @@ Retorno (o que o Claude recebe):
 
 ## 🎙️ `gerar_locucao` — gera locução
 
+> **Exclusiva do Pro** (voz = pipeline de motion, cobrada por tokens). No Free volta
+> `QUOTA_EXCEEDED` (assine o Pro). É bloco atômico de `gerar_motion`.
+
 Argumentos que o Claude manda:
 
-| Campo        | Tipo           | Default            | Observação                      |
-| ------------ | -------------- | ------------------ | ------------------------------- |
-| `texto`      | string         | —                  | o que será falado (obrigatório) |
-| `voz`        | string         | `"pt_br_feminina"` | id/apelido da voz               |
-| `velocidade` | number 0.7–1.2 | `1.0`              | opcional                        |
+| Campo   | Tipo   | Default                | Observação                                       |
+| ------- | ------ | ---------------------- | ------------------------------------------------ |
+| `texto` | string | —                      | o que será falado (obrigatório)                  |
+| `voz`   | string | voz padrão do servidor | opcional; id de voz ElevenLabs (omita p/ padrão) |
 
 Chamada (o que o Claude emite):
 
@@ -96,8 +98,6 @@ Chamada (o que o Claude emite):
     "name": "gerar_locucao",
     "arguments": {
       "texto": "Massa fresca, no ponto certo. Só na sua casa, só no seu ritmo.",
-      "voz": "pt_br_feminina",
-      "velocidade": 1.0,
     },
   },
 }
@@ -110,12 +110,9 @@ Retorno (o que o Claude recebe):
   "jsonrpc": "2.0",
   "id": 13,
   "result": {
-    "content": [
-      { "type": "text", "text": "Locução pronta (4,8s). Custo: 0,02 tokens. Saldo: 98,07." },
-    ],
+    "content": [{ "type": "text", "text": "Locução pronta (custo: 0,02 tokens)." }],
     "structuredContent": {
       "audioUrl": "https://cdn.ritmova.app/a1b2…/voz.mp3",
-      "duracaoMs": 4800,
       "caracteres": 62,
       "tokensCobrados": 0.02,
       "saldo": 98.07,
@@ -253,12 +250,12 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 **Free** — cota/qualidade: o upsell é **assinar o Pro** (`upsell.suggestedPlan: "pro"`, **sem**
 `packages`); aguardar o reset mensal também resolve cota.
 
-| code              | quando                                              |
-| ----------------- | --------------------------------------------------- |
-| `HIGH_BLOCKED`    | pediu `qualidade: "high"` (exclusivo do Pro)        |
-| `QUOTA_EXCEEDED`  | estourou posts/carrosséis/motion do mês             |
-| `SLIDES_EXCEEDED` | slides acima do máximo do plano (ou não informados) |
-| `PAUSED`          | geração do Free pausada (kill switch)               |
+| code              | quando                                                                       |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `HIGH_BLOCKED`    | pediu `qualidade: "high"` (exclusivo do Pro)                                 |
+| `QUOTA_EXCEEDED`  | estourou posts/carrosséis/motion do mês, ou pediu locução no Free (Pro-only) |
+| `SLIDES_EXCEEDED` | slides acima do máximo do plano (ou não informados)                          |
+| `PAUSED`          | geração do Free pausada (kill switch)                                        |
 
 ---
 
