@@ -17,16 +17,16 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
 ## Rotas (o que cada uma serve)
 
-| Tool                  | Para que serve                          |
-| --------------------- | --------------------------------------- |
-| **`gerar_imagem`**    | gera uma imagem (capa, asset visual)    |
-| **`gerar_locucao`**   | gera locução / voz                      |
-| **`gerar_carrossel`** | carrossel de slides (4:5) — copy + arte |
-| **`gerar_post`**      | post único de feed — copy + arte        |
-| **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas |
+| Tool                  | Para que serve                                                                |
+| --------------------- | ----------------------------------------------------------------------------- |
+| **`gerar_imagem`**    | gera uma imagem (capa, asset visual)                                          |
+| **`gerar_locucao`**   | gera locução / voz                                                            |
+| **`gerar_carrossel`** | carrossel (4:5) — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1× |
+| **`gerar_post`**      | post de feed — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×    |
+| **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas (Fase 2)                              |
 
-O resultado volta como **URL** (o vídeo é montado/renderizado na máquina do usuário).
-Contrato das rotas (argumentos e retorno) em [rules/contrato-tools.md](rules/contrato-tools.md).
+O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
+arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
 Para montar/renderizar o motion, use [`/motion-design-ritmova`](../motion-design-ritmova/SKILL.md).
 
 ## Tokens e saldo

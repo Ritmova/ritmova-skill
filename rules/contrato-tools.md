@@ -125,13 +125,19 @@ Retorno (o que o Claude recebe):
 
 ## 🎠 `gerar_carrossel` — carrossel (slides 4:5)
 
-Peça de alto nível: o servidor escreve a copy e monta os slides (1080×1350). Argumentos:
+> **VOCÊ (Claude) autora** o HTML/CSS de cada slide (canvas EXATO 1080×1350, seguindo a skill de
+> carrosséis) e os prompts de imagem. O servidor gera as imagens (gpt-image), injeta-as pelo
+> placeholder `{{img:<id>}}`, renderiza HTML→PNG (Chrome headless, **rede desligada**) e cobra
+> **UMA vez** (1 carrossel — nunca por slide). Referencie imagens SÓ por `{{img:<id>}}` (ex.:
+> `<img src="{{img:burger}}">`); **`src` http externo é recusado**.
 
-| Campo       | Tipo                   | Default    | Observação                                  |
-| ----------- | ---------------------- | ---------- | ------------------------------------------- |
-| `tema`      | string                 | —          | assunto/briefing do carrossel (obrigatório) |
-| `slides`    | int                    | `6`        | nº de slides (limite varia por plano)       |
-| `qualidade` | `"medium"` \| `"high"` | `"medium"` | `high` só no Pro                            |
+| Campo            | Tipo                                  | Default    | Observação                               |
+| ---------------- | ------------------------------------- | ---------- | ---------------------------------------- |
+| `slides`         | `{ html: string; imagens?: Img[] }[]` | —          | 1..N slides (N limitado por `slidesMax`) |
+| `qualidade`      | `"medium"` \| `"high"`                | `"medium"` | `high` só no Pro                         |
+| `idempotencyKey` | string                                | —          | opcional; retry devolve a mesma peça     |
+
+`Img = { id: string; prompt: string; transparente?: boolean }`.
 
 ```jsonc
 {
@@ -141,8 +147,19 @@ Peça de alto nível: o servidor escreve a copy e monta os slides (1080×1350). 
   "params": {
     "name": "gerar_carrossel",
     "arguments": {
-      "tema": "5 erros ao cozinhar massa em casa",
-      "slides": 6,
+      "slides": [
+        {
+          "html": "<html>…canvas 1080×1350 com <img src='{{img:burger}}'>…</html>",
+          "imagens": [
+            {
+              "id": "burger",
+              "prompt": "hambúrguer suculento, fundo transparente",
+              "transparente": true,
+            },
+          ],
+        },
+        { "html": "<html>…slide 2…</html>" },
+      ],
       "qualidade": "medium",
     },
   },
@@ -156,16 +173,13 @@ Retorno:
   "jsonrpc": "2.0",
   "id": 14,
   "result": {
-    "content": [
-      { "type": "text", "text": "Carrossel de 6 slides pronto. Custo: 4,30 tokens. Saldo: 95,70." },
-    ],
+    "content": [{ "type": "text", "text": "Carrossel de 2 slides pronto (custo: 0,11 tokens)." }],
     "structuredContent": {
       "slides": [
         { "index": 1, "url": "https://cdn.ritmova.app/a1b2…/slide-1.png" },
         { "index": 2, "url": "https://cdn.ritmova.app/a1b2…/slide-2.png" },
       ],
-      "legenda": "Massa al dente sem mistério 🍝 …",
-      "tokensCobrados": 4.3,
+      "tokensCobrados": 0.11,
       "saldo": 95.7,
     },
   },
@@ -176,13 +190,16 @@ Retorno:
 
 ## 🖼️ `gerar_post` — post único (feed)
 
-Peça de alto nível: o servidor escreve a legenda e gera a arte. Argumentos:
+> Igual ao carrossel, **1 slide**: você autora o `html`; o servidor gera as imagens, injeta por
+> `{{img:<id>}}`, renderiza e cobra (kind `post`).
 
-| Campo       | Tipo                        | Default      | Observação                             |
-| ----------- | --------------------------- | ------------ | -------------------------------------- |
-| `tema`      | string                      | —            | assunto/briefing do post (obrigatório) |
-| `formato`   | `"quadrada"` \| `"retrato"` | `"quadrada"` | retrato = 4:5                          |
-| `qualidade` | `"medium"` \| `"high"`      | `"medium"`   | `high` só no Pro                       |
+| Campo            | Tipo                          | Default      | Observação                            |
+| ---------------- | ----------------------------- | ------------ | ------------------------------------- |
+| `html`           | string                        | —            | documento 1080×1080 (ou 1080×1350)    |
+| `imagens`        | `{id,prompt,transparente?}[]` | —            | opcional; referidas por `{{img:id}}`  |
+| `formato`        | `"quadrada"` \| `"retrato"`   | `"quadrada"` | quadrada=1080×1080, retrato=1080×1350 |
+| `qualidade`      | `"medium"` \| `"high"`        | `"medium"`   | `high` só no Pro                      |
+| `idempotencyKey` | string                        | —            | opcional                              |
 
 ```jsonc
 {
@@ -192,9 +209,9 @@ Peça de alto nível: o servidor escreve a legenda e gera a arte. Argumentos:
   "params": {
     "name": "gerar_post",
     "arguments": {
-      "tema": "Promoção de massa fresca artesanal",
+      "html": "<html>…canvas com <img src='{{img:prato}}'>…</html>",
+      "imagens": [{ "id": "prato", "prompt": "massa fresca", "transparente": true }],
       "formato": "quadrada",
-      "qualidade": "medium",
     },
   },
 }
@@ -207,11 +224,10 @@ Retorno:
   "jsonrpc": "2.0",
   "id": 15,
   "result": {
-    "content": [{ "type": "text", "text": "Post pronto. Custo: 0,48 tokens. Saldo: 95,22." }],
+    "content": [{ "type": "text", "text": "Post pronto (custo: 0,05 tokens)." }],
     "structuredContent": {
       "url": "https://cdn.ritmova.app/a1b2…/post.png",
-      "legenda": "Hoje tem massa fresca 🍝 …",
-      "tokensCobrados": 0.48,
+      "tokensCobrados": 0.05,
       "saldo": 95.22,
     },
   },
@@ -261,6 +277,8 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 
 ## Notas
 
-- `gerar_imagem` e `gerar_locucao` são os **blocos atômicos**; `gerar_post`, `gerar_carrossel`
-  e `gerar_motion` **compõem** essas chamadas por baixo.
+- `gerar_imagem` e `gerar_locucao` são tools **atômicas** (1 imagem / 1 locução).
+- `gerar_post` e `gerar_carrossel` **NÃO** reusam `gerar_imagem`: VOCÊ autora o HTML/CSS + os
+  prompts; o servidor gera as imagens, injeta por `{{img:<id>}}`, renderiza e cobra **1× por
+  peça** (nunca por slide). Só `gerar_motion` (Fase 2) compõe os blocos atômicos.
 - O resultado volta como **URL** (o cliente baixa o arquivo); as chaves de API ficam no servidor.
