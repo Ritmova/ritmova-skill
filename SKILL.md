@@ -17,14 +17,16 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
 ## Rotas (o que cada uma serve)
 
-| Tool                  | Para que serve                                                                |
-| --------------------- | ----------------------------------------------------------------------------- |
-| **`gerar_imagem`**    | gera uma imagem (capa, asset visual)                                          |
-| **`gerar_locucao`**   | gera locução / voz                                                            |
-| **`gerar_carrossel`** | carrossel (4:5) — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1× |
-| **`gerar_post`**      | post de feed — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×    |
-| **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas (Fase 2)                              |
-| **`listar_pecas`**    | lista as peças já geradas (read-only, URL assinada)                           |
+| Tool                  | Para que serve                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| **`gerar_imagem`**    | gera uma imagem (capa, asset visual)                                                 |
+| **`gerar_locucao`**   | gera locução / voz                                                                   |
+| **`gerar_carrossel`** | carrossel (4:5) — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×        |
+| **`gerar_post`**      | post de feed — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×           |
+| **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas (Fase 2)                                     |
+| **`listar_pecas`**    | lista as peças já geradas (read-only, URL assinada)                                  |
+| **`assinar_pro`**     | link de checkout p/ assinar o Pro (use no upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) |
+| **`comprar_tokens`**  | link de checkout p/ comprar tokens avulsos (Pro) — use no upsell `SEM_TOKENS`        |
 
 > **Carrossel/post — leia a RECEITA primeiro.** Antes de autorar o HTML, **leia o resource MCP
 > `ritmova://skills/carrossel`** (servido pelo servidor): é a receita completa de layout, fontes,
