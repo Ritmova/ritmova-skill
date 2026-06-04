@@ -24,6 +24,12 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 | **`gerar_carrossel`** | carrossel (4:5) — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1× |
 | **`gerar_post`**      | post de feed — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×    |
 | **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas (Fase 2)                              |
+| **`listar_pecas`**    | lista as peças já geradas (read-only, URL assinada)                           |
+
+> **Carrossel/post — leia a RECEITA primeiro.** Antes de autorar o HTML, **leia o resource MCP
+> `ritmova://skills/carrossel`** (servido pelo servidor): é a receita completa de layout, fontes,
+> técnica canvas-panorama e o placeholder `{{img:<id>}}`. Sem ela, o resultado não tem a qualidade
+> da RITMOVA.
 
 O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
 arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
