@@ -15,23 +15,32 @@ metadata:
 A **RITMOVA** é um **estúdio criativo com IA**: o usuário pede conteúdo de marketing em
 linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
-## Rotas (o que cada uma serve)
+## Ferramentas
 
-| Tool                  | Para que serve                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------ |
-| **`gerar_imagem`**    | gera uma imagem (capa, asset visual)                                                 |
-| **`gerar_locucao`**   | gera locução / voz                                                                   |
-| **`gerar_carrossel`** | carrossel (4:5) — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×        |
-| **`gerar_post`**      | post de feed — VOCÊ autora o HTML/CSS+prompts; servidor renderiza+cobra 1×           |
-| **`gerar_motion`**    | motion / vídeo — **compõe** as atômicas (Fase 2)                                     |
-| **`listar_pecas`**    | lista as peças já geradas (read-only, URL assinada)                                  |
-| **`assinar_pro`**     | link de checkout p/ assinar o Pro (use no upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) |
-| **`comprar_tokens`**  | link de checkout p/ comprar tokens avulsos (Pro) — use no upsell `SEM_TOKENS`        |
+**Principais** (porta de entrada — **entregam a RECEITA** e cobram a peça):
 
-> **Carrossel/post — leia a RECEITA primeiro.** Antes de autorar o HTML, **leia o resource MCP
-> `ritmova://skills/carrossel`** (servido pelo servidor): é a receita completa de layout, fontes,
-> técnica canvas-panorama e o placeholder `{{img:<id>}}`. Sem ela, o resultado não tem a qualidade
-> da RITMOVA.
+| Tool                  | Como usar (two-phase)                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1× |
+| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`**                                        |
+| **`gerar_motion`**    | motion / vídeo (Fase 2) — mesmo padrão; compõe as sub-ferramentas                                                           |
+
+**Sub-ferramentas** (aprimoram as principais; também funcionam sozinhas):
+
+| Tool                | Para que serve                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha p/ um asset avulso |
+| **`gerar_locucao`** | gera 1 locução / voz (Pro)                                                                                   |
+
+**Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
+`assinar_pro` (checkout Pro — upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) · `comprar_tokens` (checkout
+de tokens — upsell `SEM_TOKENS`).
+
+> **A receita vem da PRÓPRIA ferramenta.** Para carrossel/post, chame a tool principal **sem o
+> conteúdo** (`gerar_carrossel` sem `slides`, `gerar_post` sem `html`) → ela devolve a **RECEITA**
+> (canvas 1080×1350, tipografia, canvas-panorama, placeholder `{{img:<id>}}`). Autore o HTML
+> seguindo-a À RISCA e chame de novo com o conteúdo. **Não** rode scripts nem use chaves — as
+> imagens saem pela sub-ferramenta, declaradas em `imagens:[{id,prompt}]` e referenciadas por `{{img:<id>}}`.
 
 O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
 arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
