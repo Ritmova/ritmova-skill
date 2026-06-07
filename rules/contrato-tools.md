@@ -130,12 +130,16 @@ Retorno (o que o Claude recebe):
 > placeholder `{{img:<id>}}`, renderiza HTML→PNG (Chrome headless, **rede desligada**) e cobra
 > **UMA vez** (1 carrossel — nunca por slide). Referencie imagens SÓ por `{{img:<id>}}` (ex.:
 > `<img src="{{img:burger}}">`); **`src` http externo é recusado**.
+>
+> **Two-phase:** chame SEM `slides` para **receber a RECEITA** (canvas 1080×1350, tipografia,
+> canvas-panorama, `{{img:<id>}}`) — essa chamada **NÃO cobra**. Autore o HTML seguindo-a À RISCA e
+> chame **de novo** com `slides` para renderizar+cobrar.
 
-| Campo            | Tipo                                  | Default    | Observação                               |
-| ---------------- | ------------------------------------- | ---------- | ---------------------------------------- |
-| `slides`         | `{ html: string; imagens?: Img[] }[]` | —          | 1..N slides (N limitado por `slidesMax`) |
-| `qualidade`      | `"medium"` \| `"high"`                | `"medium"` | `high` só no Pro                         |
-| `idempotencyKey` | string                                | —          | opcional; retry devolve a mesma peça     |
+| Campo            | Tipo                              | Default    | Observação                                                                                                                  |
+| ---------------- | --------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `slides`         | `{ html; imagens? }[]` (opcional) | —          | **ausente/vazio ⇒ devolve a RECEITA e NÃO cobra** (two-phase); presente ⇒ 1..N slides (N ≤ `slidesMax`), renderiza+cobra 1× |
+| `qualidade`      | `"medium"` \| `"high"`            | `"medium"` | `high` só no Pro                                                                                                            |
+| `idempotencyKey` | string                            | —          | opcional; retry devolve a mesma peça                                                                                        |
 
 `Img = { id: string; prompt: string; transparente?: boolean }`.
 
@@ -192,14 +196,17 @@ Retorno:
 
 > Igual ao carrossel, **1 slide**: você autora o `html`; o servidor gera as imagens, injeta por
 > `{{img:<id>}}`, renderiza e cobra (kind `post`).
+>
+> **Two-phase:** chame SEM `html` para **receber a RECEITA** — essa chamada **NÃO cobra**. Autore o
+> HTML seguindo-a e chame **de novo** com `html` para renderizar+cobrar.
 
-| Campo            | Tipo                          | Default      | Observação                            |
-| ---------------- | ----------------------------- | ------------ | ------------------------------------- |
-| `html`           | string                        | —            | documento 1080×1080 (ou 1080×1350)    |
-| `imagens`        | `{id,prompt,transparente?}[]` | —            | opcional; referidas por `{{img:id}}`  |
-| `formato`        | `"quadrada"` \| `"retrato"`   | `"quadrada"` | quadrada=1080×1080, retrato=1080×1350 |
-| `qualidade`      | `"medium"` \| `"high"`        | `"medium"`   | `high` só no Pro                      |
-| `idempotencyKey` | string                        | —            | opcional                              |
+| Campo            | Tipo                          | Default      | Observação                                                                                                   |
+| ---------------- | ----------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `html`           | string (opcional)             | —            | **ausente/vazio ⇒ devolve a RECEITA e NÃO cobra** (two-phase); presente ⇒ documento 1080×1080 (ou 1080×1350) |
+| `imagens`        | `{id,prompt,transparente?}[]` | —            | opcional; referidas por `{{img:id}}`                                                                         |
+| `formato`        | `"quadrada"` \| `"retrato"`   | `"quadrada"` | quadrada=1080×1080, retrato=1080×1350                                                                        |
+| `qualidade`      | `"medium"` \| `"high"`        | `"medium"`   | `high` só no Pro                                                                                             |
+| `idempotencyKey` | string                        | —            | opcional                                                                                                     |
 
 ```jsonc
 {
@@ -270,7 +277,7 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 | ----------------- | ---------------------------------------------------------------------------- |
 | `HIGH_BLOCKED`    | pediu `qualidade: "high"` (exclusivo do Pro)                                 |
 | `QUOTA_EXCEEDED`  | estourou posts/carrosséis/motion do mês, ou pediu locução no Free (Pro-only) |
-| `SLIDES_EXCEEDED` | slides acima do máximo do plano (ou não informados)                          |
+| `SLIDES_EXCEEDED` | slides acima do máximo do plano (`slides.length > slidesMax`)                |
 | `PAUSED`          | geração do Free pausada (kill switch)                                        |
 
 ---
