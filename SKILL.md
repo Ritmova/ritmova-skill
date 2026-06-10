@@ -5,7 +5,7 @@ description: >
   Use esta skill quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem,
   locução/voz, post, carrossel ou motion/vídeo, ou perguntar sobre tokens, saldo, custo,
   planos (Free/Pro) e compra de tokens. Documenta as rotas MCP (gerar_imagem, gerar_locucao,
-  gerar_carrossel, gerar_post) e o erro de upsell de saldo.
+  gerar_carrossel, gerar_post, gerar_motion) e o erro de upsell de saldo.
 metadata:
   tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, carrossel, post, tokens, saldo, motion, geracao
 ---
@@ -17,13 +17,13 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
 ## Ferramentas
 
-**Principais** (porta de entrada — **entregam a RECEITA** e cobram a peça):
+**Principais** (porta de entrada — **entregam a RECEITA**):
 
-| Tool                  | Como usar (two-phase)                                                                                                       |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1× |
-| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`**                                        |
-| **`gerar_motion`**    | motion / vídeo (Fase 2) — mesmo padrão; compõe as sub-ferramentas                                                           |
+| Tool                  | Como usar                                                                                                                                                                                                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1×                                                                                                                                            |
+| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`** → renderiza+cobra 1×                                                                                                                                                              |
+| **`gerar_motion`**    | **Chame** → recebe a receita do vídeo. Você **monta e RENDERIZA o MP4 localmente** (Remotion), usando `gerar_locucao` (voz) + `gerar_imagem` (assets). **Não** é two-phase, **não** renderiza no servidor e **não** cobra — quem cobra são os blocos (sub-ferramentas) |
 
 **Sub-ferramentas** (aprimoram as principais; também funcionam sozinhas):
 
@@ -44,7 +44,12 @@ de tokens — upsell `SEM_TOKENS`).
 
 O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
 arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
-Para montar/renderizar o motion, use [`/motion-design-ritmova`](../motion-design-ritmova/SKILL.md).
+
+> **Motion (vídeo):** chame **`gerar_motion`** → ele devolve a **RECEITA** de motion. Diferente do
+> carrossel/post, **você** monta o projeto e **renderiza o MP4 na sua máquina** (Remotion): gere a
+> narração com `gerar_locucao` (o **áudio é a fonte do tempo**) e os assets com `gerar_imagem`. Em
+> clientes sem execução local (ex.: claude.ai web) dá p/ montar o roteiro e os blocos, mas o render
+> final precisa de um ambiente local (Claude Code/desktop).
 
 ## Tokens e saldo
 

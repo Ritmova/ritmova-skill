@@ -243,6 +243,24 @@ Retorno:
 
 ---
 
+## 🎬 `gerar_motion` — motion / vídeo narrado (o CLIENTE renderiza)
+
+**Diferente das outras: ENTREGA a receita e VOCÊ renderiza o vídeo localmente** (Remotion). **Não**
+é two-phase, **não cobra** e **não renderiza no servidor**.
+
+- **Chame** `gerar_motion` (sem argumentos) → devolve a **RECEITA** de motion.
+- Monte o vídeo seguindo-a: gere a **narração** com `gerar_locucao` (o **áudio é a FONTE DO TEMPO**),
+  os **assets** com `gerar_imagem`, e **renderize o MP4 na sua máquina** (Remotion).
+- A **cobrança** vem só dos blocos (`gerar_locucao` / `gerar_imagem`); `gerar_motion` em si é grátis.
+- Em clientes sem execução local (ex.: claude.ai web) dá p/ montar roteiro + blocos, mas o render
+  final precisa de ambiente local (Claude Code/desktop).
+
+```jsonc
+{ "method": "tools/call", "params": { "name": "gerar_motion", "arguments": {} } }
+```
+
+---
+
 ## Erros de upsell (estruturados — nunca 500)
 
 A rota devolve `isError: true` + `structuredContent.code` em vez do resultado. **Explique e
@@ -287,5 +305,6 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 - `gerar_imagem` e `gerar_locucao` são tools **atômicas** (1 imagem / 1 locução).
 - `gerar_post` e `gerar_carrossel` **NÃO** reusam `gerar_imagem`: VOCÊ autora o HTML/CSS + os
   prompts; o servidor gera as imagens, injeta por `{{img:<id>}}`, renderiza e cobra **1× por
-  peça** (nunca por slide). Só `gerar_motion` (Fase 2) compõe os blocos atômicos.
+  peça** (nunca por slide). Já `gerar_motion` ENTREGA a receita e é VOCÊ (cliente) que compõe os
+  blocos atômicos (`gerar_locucao`/`gerar_imagem`) e renderiza o vídeo localmente.
 - O resultado volta como **URL** (o cliente baixa o arquivo); as chaves de API ficam no servidor.
