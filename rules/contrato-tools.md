@@ -245,16 +245,19 @@ Retorno:
 
 ## 🎬 `gerar_motion` — motion / vídeo narrado (o CLIENTE renderiza)
 
-**Diferente das outras: ENTREGA a receita e VOCÊ renderiza o vídeo localmente** (Remotion). **Não**
-é two-phase e **não renderiza no servidor** — mas a **entrega da receita COBRA 1×**.
+**Diferente das outras: ENTREGA a receita (grátis) e VOCÊ renderiza o vídeo localmente** (Remotion).
+**Não** é two-phase e **não renderiza no servidor**. O **preço-base do motion é cobrado na TRILHA**.
 
-- **Chame** `gerar_motion` (sem argumentos) → devolve a **RECEITA** de motion e **cobra**:
-  **Pro: 3 tokens** (preço base da receita) · **Free: consome a amostra única de motion**.
-- Monte o vídeo seguindo-a: gere a **narração** com `gerar_locucao` (o **áudio é a FONTE DO TEMPO**),
-  os **assets** com `gerar_imagem`, e **renderize o MP4 na sua máquina** (Remotion).
-- Os blocos (`gerar_locucao` / `gerar_imagem`) cobram **à parte**, pelo custo real de cada um.
-- **Re-pedir a receita no MESMO trabalho não cobra de novo** (janela de ~30 min, idempotente);
-  um motion novo depois disso cobra outra vez. Free sem amostra / Pro sem saldo → erro de upsell.
+- **Chame** `gerar_motion` (sem argumentos) → devolve a **RECEITA** de motion (grátis).
+- Monte o vídeo seguindo-a: **narração** com `gerar_locucao` (o **áudio é a FONTE DO TEMPO**),
+  **trilha OBRIGATÓRIA** com `obter_trilha`, **assets** com `gerar_imagem`, e **renderize o MP4
+  na sua máquina** (Remotion).
+- **`obter_trilha` é a âncora de cobrança do motion**: entrega a música do pack licenciado da
+  RITMOVA por URL temporária e cobra o preço-base 1× por trabalho — **Pro: 3 tokens · Free: a
+  amostra única** — além de contar o motion no painel. Re-pedir no MESMO trabalho (janela ~30 min)
+  não cobra de novo; **cada vídeo NOVO cobra** (a URL expira — chame de novo). Free sem amostra /
+  Pro sem saldo → erro de upsell.
+- Voz e imagens cobram **à parte**, pelo custo real de cada uma.
 - Em clientes sem execução local (ex.: claude.ai web) dá p/ montar roteiro + blocos, mas o render
   final precisa de ambiente local (Claude Code/desktop).
 

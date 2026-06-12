@@ -19,11 +19,11 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
 **Principais** (porta de entrada — **entregam a RECEITA**):
 
-| Tool                  | Como usar                                                                                                                                                                                                                                                                                         |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1×                                                                                                                                                                       |
-| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`** → renderiza+cobra 1×                                                                                                                                                                                         |
-| **`gerar_motion`**    | **Chame** → recebe a receita do vídeo e **cobra 1×** (Pro: 3 tokens; Free: a amostra única). Você **monta e RENDERIZA o MP4 localmente** (Remotion), usando `gerar_locucao` (voz) + `gerar_imagem` (assets), que cobram à parte. Re-pedir a receita no mesmo trabalho (~30 min) não cobra de novo |
+| Tool                  | Como usar                                                                                                                                                                                                                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1×                                                                                                                                                                                       |
+| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`** → renderiza+cobra 1×                                                                                                                                                                                                         |
+| **`gerar_motion`**    | **Chame** → recebe a receita do vídeo (grátis). Você **monta e RENDERIZA o MP4 localmente** (Remotion), usando `obter_trilha` (trilha OBRIGATÓRIA — **cobra o preço-base do motion: Pro 3 tokens / Free a amostra única**, 1× por trabalho) + `gerar_locucao` (voz) + `gerar_imagem` (assets), que cobram à parte |
 
 **Sub-ferramentas** (aprimoram as principais; também funcionam sozinhas):
 
@@ -31,6 +31,7 @@ linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 | ------------------- | ------------------------------------------------------------------------------------------------------------ |
 | **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha p/ um asset avulso |
 | **`gerar_locucao`** | gera 1 locução / voz (Pro)                                                                                   |
+| **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — cobra o preço-base do motion             |
 
 **Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
 `assinar_pro` (checkout Pro — upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) · `comprar_tokens` (checkout
