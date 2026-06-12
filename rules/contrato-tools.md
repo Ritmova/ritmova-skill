@@ -246,12 +246,15 @@ Retorno:
 ## 🎬 `gerar_motion` — motion / vídeo narrado (o CLIENTE renderiza)
 
 **Diferente das outras: ENTREGA a receita e VOCÊ renderiza o vídeo localmente** (Remotion). **Não**
-é two-phase, **não cobra** e **não renderiza no servidor**.
+é two-phase e **não renderiza no servidor** — mas a **entrega da receita COBRA 1×**.
 
-- **Chame** `gerar_motion` (sem argumentos) → devolve a **RECEITA** de motion.
+- **Chame** `gerar_motion` (sem argumentos) → devolve a **RECEITA** de motion e **cobra**:
+  **Pro: 3 tokens** (preço base da receita) · **Free: consome a amostra única de motion**.
 - Monte o vídeo seguindo-a: gere a **narração** com `gerar_locucao` (o **áudio é a FONTE DO TEMPO**),
   os **assets** com `gerar_imagem`, e **renderize o MP4 na sua máquina** (Remotion).
-- A **cobrança** vem só dos blocos (`gerar_locucao` / `gerar_imagem`); `gerar_motion` em si é grátis.
+- Os blocos (`gerar_locucao` / `gerar_imagem`) cobram **à parte**, pelo custo real de cada um.
+- **Re-pedir a receita no MESMO trabalho não cobra de novo** (janela de ~30 min, idempotente);
+  um motion novo depois disso cobra outra vez. Free sem amostra / Pro sem saldo → erro de upsell.
 - Em clientes sem execução local (ex.: claude.ai web) dá p/ montar roteiro + blocos, mas o render
   final precisa de ambiente local (Claude Code/desktop).
 
