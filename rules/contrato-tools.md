@@ -267,16 +267,19 @@ Retorno:
 
 // 2) trilha (cobra o preço-base do motion). As TAGS DISPONÍVEIS estão listadas na própria
 //    description da tool (cardápio do pack) — use-as no briefing em vez de inventar.
+//    SEMPRE mande idempotencyKey = um id ESTÁVEL do vídeo (mesmo valor p/ re-baixar a trilha do
+//    MESMO vídeo; valor NOVO p/ cada vídeo NOVO). É isso que separa "retry" de "vídeo novo" —
+//    sem ela, cada chamada cobra/conta de novo (e no Free a 2ª é bloqueada).
 {
   "method": "tools/call",
   "params": {
     "name": "obter_trilha",
-    "arguments": { "tags": ["epicas"], "duracaoMinSegundos": 40 }
+    "arguments": { "tags": ["epicas"], "duracaoMinSegundos": 40, "idempotencyKey": "promo-cafe-v1" }
   }
 }
 // → devolve { trilha: { id, tags, duracaoMs?, bpm?, url }, tokensCobrados, replayed, saldo? }
-//   Baixe o áudio da `url` (temporária!) e use no render. `replayed: true` = mesmo trabalho,
-//   não cobrou de novo.
+//   Baixe o áudio da `url` (temporária!) e use no render. `replayed: true` = mesmo vídeo (mesma
+//   idempotencyKey), não cobrou de novo.
 ```
 
 ---
