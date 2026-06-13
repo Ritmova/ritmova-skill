@@ -5,9 +5,9 @@ description: >
   Use esta skill quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem,
   locução/voz, post, carrossel ou motion/vídeo, ou perguntar sobre tokens, saldo, custo,
   planos (Free/Pro) e compra de tokens. Documenta as rotas MCP (gerar_imagem, gerar_locucao,
-  gerar_carrossel, gerar_post, gerar_motion) e o erro de upsell de saldo.
+  gerar_carrossel, gerar_post, gerar_motion, obter_trilha) e o erro de upsell de saldo.
 metadata:
-  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, carrossel, post, tokens, saldo, motion, geracao
+  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, trilha, carrossel, post, tokens, saldo, motion, geracao
 ---
 
 # RITMOVA
