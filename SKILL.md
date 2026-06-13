@@ -46,11 +46,13 @@ de tokens — upsell `SEM_TOKENS`).
 O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
 arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
 
-> **Motion (vídeo):** chame **`gerar_motion`** → ele devolve a **RECEITA** de motion. Diferente do
-> carrossel/post, **você** monta o projeto e **renderiza o MP4 na sua máquina** (Remotion): gere a
-> narração com `gerar_locucao` (o **áudio é a fonte do tempo**) e os assets com `gerar_imagem`. Em
-> clientes sem execução local (ex.: claude.ai web) dá p/ montar o roteiro e os blocos, mas o render
-> final precisa de um ambiente local (Claude Code/desktop).
+> **Motion (vídeo):** chame **`gerar_motion`** → ele devolve a **RECEITA** de motion (grátis).
+> Diferente do carrossel/post, **você** monta o projeto e **renderiza o MP4 na sua máquina**
+> (Remotion): gere a narração com `gerar_locucao` (o **áudio é a fonte do tempo**), obtenha a
+> **trilha OBRIGATÓRIA** com `obter_trilha` (é onde o motion é cobrado; as tags disponíveis estão
+> na própria descrição da tool) e os assets com `gerar_imagem`. Em clientes sem execução local
+> (ex.: claude.ai web) dá p/ montar o roteiro e os blocos, mas o render final precisa de um
+> ambiente local (Claude Code/desktop).
 
 ## Tokens e saldo
 
