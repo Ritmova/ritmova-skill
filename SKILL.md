@@ -15,6 +15,40 @@ metadata:
 A **RITMOVA** é um **estúdio criativo com IA**: o usuário pede conteúdo de marketing em
 linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
 
+## Etapa 0 — Auto-prompt obrigatório antes de qualquer construção
+
+Antes de produzir qualquer coisa (código, vídeo, arte, documento, campanha, etc.), você não começa a construir direto. Primeiro você escreve, para você mesmo, um prompt profissional com o plano completo do trabalho. Só depois de escrito e revisado esse auto-prompt você inicia a execução, seguindo-o.
+
+Faça nesta ordem:
+
+1. Entenda a tarefa e defina os critérios de sucesso. Diga, em uma ou duas frases, qual é o resultado, para quem é, e o que significa "pronto" e "profissional" neste caso específico.
+2. Inspecione o MCP da Ritmova antes de planejar. Liste e leia as ferramentas e capacidades disponíveis no MCP da Ritmova para saber o que realmente pode usar. Não presuma o que existe — verifique.
+3. Pesquise como fazer o melhor trabalho possível. Reúna o que for necessário (requisitos, referências, restrições, boas práticas do formato em questão) para entregar algo de nível profissional na tarefa designada.
+4. Escreva o auto-prompt (o plano completo) aplicando boas práticas de criação de prompt:
+   - Papel e objetivo claros: defina o papel que você assume e o que deve ser entregue.
+   - Contexto e motivação: explique o porquê e para quem — isso melhora o foco do resultado.
+   - Critérios de sucesso explícitos e definição de "pronto".
+   - Passos sequenciais numerados, na ordem de execução.
+   - Quais ferramentas do MCP da Ritmova serão usadas e em que momento.
+   - Formato e estrutura da saída desejada — descreva o que fazer (e não apenas o que evitar).
+   - Exemplos quando ajudarem (few-shot), delimitados em tags <exemplo>…</exemplo>.
+   - Use tags XML para separar instruções, contexto e dados quando o prompt misturar esses elementos.
+   - Termine com uma etapa de autoverificação: revise a saída contra os critérios de sucesso antes de considerar o trabalho concluído.
+5. Investigue antes de afirmar. Não faça suposições sobre arquivos, dados ou ferramentas que você não abriu/verificou; baseie o plano no que confirmou.
+6. Só então construa, seguindo o auto-prompt. Mantenha o escopo no que foi pedido, sem complexidade desnecessária, e revise no final.
+
+**Se faltar informação, pergunte antes de construir.** Quando você não tiver o essencial para entregar algo profissional — cores e paleta, estética e estilo visual, tom de voz, público-alvo, formato e proporção, marca/logo, referências e duração (no caso de motion) — faça perguntas objetivas ao usuário em vez de presumir. Prefira poucas perguntas e específicas, oferecendo opções quando ajudar, e só avance para a construção quando o essencial estiver definido.
+
+---
+
+### Referência — boas práticas de prompt
+
+Base: fontes primárias (Anthropic / OpenAI / Google) + o repositório **[prompt-blueprint](https://github.com/thibaultyou/prompt-blueprint)**. Pontos que reforçam esta Etapa 0:
+
+- **Planejar antes de executar tem efeito medido** — separar o plano da execução reduz erro (Plan-and-Solve, ACL 2023; ferramenta `think` da Anthropic: +54% rel. em tau-bench). É a razão de esta etapa existir.
+- **Abra o auto-prompt com papel + objetivo + critérios de sucesso mensuráveis** e delimite as partes com tags (`<plano>`, `<contexto>`, `<tarefa>`, `<exemplo>`).
+- **Enquadre no positivo e calibre a intensidade** — diga o que fazer; evite linguagem agressiva ("CRÍTICO / VOCÊ DEVE"), que nos modelos recentes tende a causar overtriggering.
+
 ## Ferramentas
 
 **Principais** (porta de entrada — **entregam a RECEITA**):
