@@ -5,9 +5,9 @@ description: >
   Use esta skill quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem,
   locução/voz, post, carrossel ou motion/vídeo, ou perguntar sobre tokens, saldo, custo,
   planos (Free/Pro) e compra de tokens. Documenta as rotas MCP (gerar_imagem, gerar_locucao,
-  gerar_carrossel, gerar_post, gerar_motion, obter_trilha) e o erro de upsell de saldo.
+  gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito) e o erro de upsell de saldo.
 metadata:
-  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, trilha, carrossel, post, tokens, saldo, motion, geracao
+  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, obter_efeito, sfx, trilha, carrossel, post, tokens, saldo, motion, geracao
 ---
 
 # RITMOVA
@@ -66,6 +66,7 @@ Base: fontes primárias (Anthropic / OpenAI / Google) + o repositório **[prompt
 | **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha p/ um asset avulso |
 | **`gerar_locucao`** | gera 1 locução / voz (Pro)                                                                                   |
 | **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — cobra o preço-base do motion             |
+| **`obter_efeito`**  | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — **grátis**, não cobra token nem cota    |
 
 **Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
 `assinar_pro` (checkout Pro — upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) · `comprar_tokens` (checkout

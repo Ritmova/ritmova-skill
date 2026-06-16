@@ -2,11 +2,11 @@
 name: contrato-tools
 description: >
   Contrato completo das tools MCP de geração da RITMOVA — como o Claude chama gerar_imagem,
-  gerar_locucao, gerar_carrossel e gerar_post: argumentos, exemplo de tools/call, retorno
-  (URL assinada + tokens/saldo) e o erro estruturado de upsell SEM_TOKENS. Carregue ao gerar
-  imagem/locução/carrossel/post ou ao tratar saldo insuficiente.
+  gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha (música) e obter_efeito
+  (SFX, grátis): argumentos, exemplo de tools/call, retorno (URL assinada + tokens/saldo) e o erro
+  estruturado de upsell SEM_TOKENS. Carregue ao gerar qualquer peça ou ao tratar saldo insuficiente.
 metadata:
-  tags: contrato, tools, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, tools/call, upsell, tokens, mcp
+  tags: contrato, tools, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, tools/call, upsell, tokens, mcp
 ---
 
 # Contrato das tools MCP (geração)
@@ -257,6 +257,9 @@ Retorno:
   amostra única** — além de contar o motion no painel. Re-pedir no MESMO trabalho (janela ~30 min)
   não cobra de novo; **cada vídeo NOVO cobra** (a URL expira — chame de novo). Free sem amostra /
   Pro sem saldo → erro de upsell.
+- **`obter_efeito` (SFX) — GRÁTIS:** efeitos sonoros (whoosh, transição, pop, impacto…) do pack
+  curado da RITMOVA, por URL temporária, escolhidos por `tags`. **Não cobra token nem cota.** Ótimo
+  para transições/impactos no motion. As tags disponíveis estão na description da tool.
 - Voz e imagens cobram **à parte**, pelo custo real de cada uma.
 - Em clientes sem execução local (ex.: claude.ai web) dá p/ montar roteiro + blocos, mas o render
   final precisa de ambiente local (Claude Code/desktop).
@@ -280,6 +283,10 @@ Retorno:
 // → devolve { trilha: { id, tags, duracaoMs?, bpm?, url }, tokensCobrados, replayed, saldo? }
 //   Baixe o áudio da `url` (temporária!) e use no render. `replayed: true` = mesmo vídeo (mesma
 //   idempotencyKey), não cobrou de novo.
+
+// 3) efeito sonoro (SFX) — GRÁTIS, sem idempotencyKey (não cobra). Opcional.
+{ "method": "tools/call", "params": { "name": "obter_efeito", "arguments": { "tags": ["whoosh"] } } }
+// → devolve { efeito: { id, tags, duracaoMs?, url }, tokensCobrados: 0 }. Baixe a `url` e use no render.
 ```
 
 ---
