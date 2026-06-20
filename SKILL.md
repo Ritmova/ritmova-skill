@@ -1,13 +1,16 @@
 ---
 name: ritmova
 description: >
-  A RITMOVA é um estúdio criativo com IA (via MCP): gera imagem, locução/voz e motion/vídeo.
-  Use esta skill quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem,
-  locução/voz, post, carrossel ou motion/vídeo, ou perguntar sobre tokens, saldo, custo,
-  planos (Free/Pro) e compra de tokens. Documenta as rotas MCP (gerar_imagem, gerar_locucao,
-  gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito) e o erro de upsell de saldo.
+  A RITMOVA é um estúdio criativo com IA (via MCP): gera imagem, locução/voz e motion/vídeo, e dá
+  ao usuário um "computador online" (workspace de arquivos visível no painel do site). Use esta skill
+  quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem, locução/voz, post, carrossel
+  ou motion/vídeo, pedir para criar/organizar pastas e arquivos, ou perguntar sobre tokens, saldo,
+  custo, planos (Free/Pro) e compra de tokens. Documenta as rotas MCP de geração (gerar_imagem,
+  gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito), as rotas de
+  workspace (listar_workspace, ler_arquivo, escrever_arquivo, criar_pasta, mover_no, excluir_no) e o
+  erro de upsell de saldo.
 metadata:
-  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, obter_efeito, sfx, trilha, carrossel, post, tokens, saldo, motion, geracao
+  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, obter_efeito, sfx, trilha, carrossel, post, tokens, saldo, motion, geracao, workspace, computador online, arquivos, pastas, listar_workspace, escrever_arquivo
 ---
 
 # RITMOVA
@@ -71,6 +74,25 @@ Base: fontes primárias (Anthropic / OpenAI / Google) + o repositório **[prompt
 **Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
 `assinar_pro` (checkout Pro — upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) · `comprar_tokens` (checkout
 de tokens — upsell `SEM_TOKENS`).
+
+**Computador online (workspace) — pensado para quem NÃO tem Claude Code:** cada usuário tem um
+espaço de arquivos por conta, persistente, que ele vê e baixa no painel do site (ritmova.app). Você
+pode criar pastas, arquivos e HTML lá pelo MCP — assim quem usa só o **claude.ai web** organiza e
+guarda o trabalho sem um diretório local. As peças que você gera (imagem/voz/post/carrossel) **já
+aparecem automaticamente** no workspace, na pasta `/pecas/…`.
+
+| Tool                   | Para que serve                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| **`listar_workspace`** | lista pastas/arquivos (sem `caminho` = raiz; `recursivo:true` = tudo) — read-only |
+| **`ler_arquivo`**      | lê um arquivo (texto/HTML volta como conteúdo; peça volta como URL temporária)    |
+| **`escrever_arquivo`** | cria/sobrescreve um arquivo de texto/HTML (cria as pastas do caminho)             |
+| **`criar_pasta`**      | cria uma pasta (e ancestrais)                                                     |
+| **`mover_no`**         | move/renomeia um arquivo ou pasta (com toda a subárvore)                          |
+| **`excluir_no`**       | exclui (pasta com conteúdo exige `recursivo:true`)                                |
+
+> As tools de geração aceitam um `caminho` opcional p/ salvar a peça onde você quiser no workspace
+> (ex.: `gerar_carrossel(..., caminho:"/campanha-x")`). Use o workspace para deixar o trabalho
+> organizado e visível ao usuário leigo — é o diferencial de "não precisa do Claude Code".
 
 > **A receita vem da PRÓPRIA ferramenta.** Para carrossel/post, chame a tool principal **sem o
 > conteúdo** (`gerar_carrossel` sem `slides`, `gerar_post` sem `html`) → ela devolve a **RECEITA**

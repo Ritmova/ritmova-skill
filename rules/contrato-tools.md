@@ -1,12 +1,14 @@
 ---
 name: contrato-tools
 description: >
-  Contrato completo das tools MCP de geração da RITMOVA — como o Claude chama gerar_imagem,
-  gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha (música) e obter_efeito
-  (SFX, grátis): argumentos, exemplo de tools/call, retorno (URL assinada + tokens/saldo) e o erro
-  estruturado de upsell SEM_TOKENS. Carregue ao gerar qualquer peça ou ao tratar saldo insuficiente.
+  Contrato completo das tools MCP da RITMOVA — como o Claude chama gerar_imagem, gerar_locucao,
+  gerar_carrossel, gerar_post, gerar_motion, obter_trilha (música), obter_efeito (SFX, grátis) e as
+  tools do "computador online" (listar_workspace, ler_arquivo, escrever_arquivo, criar_pasta,
+  mover_no, excluir_no): argumentos, exemplo de tools/call, retorno (URL assinada + tokens/saldo) e o
+  erro estruturado de upsell SEM_TOKENS. Carregue ao gerar qualquer peça, criar/organizar arquivos,
+  ou tratar saldo insuficiente.
 metadata:
-  tags: contrato, tools, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, tools/call, upsell, tokens, mcp
+  tags: contrato, tools, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, listar_workspace, escrever_arquivo, workspace, computador online, arquivos, tools/call, upsell, tokens, mcp
 ---
 
 # Contrato das tools MCP (geração)
@@ -288,6 +290,45 @@ Retorno:
 { "method": "tools/call", "params": { "name": "obter_efeito", "arguments": { "tags": ["whoosh"] } } }
 // → devolve { efeito: { id, tags, duracaoMs?, url }, tokensCobrados: 0 }. Baixe a `url` e use no render.
 ```
+
+---
+
+## 🗂️ Computador online (workspace) — pastas e arquivos por usuário
+
+Espaço de arquivos por conta, persistente, que o usuário vê/baixa no painel do site. Útil para quem
+**não tem Claude Code**: você organiza o trabalho em pastas/arquivos/HTML que ele acessa pela web.
+Tudo é **tenant-scoped** (cada conta só enxerga o seu) e **não cobra tokens**. Caminhos são lógicos
+(`/projeto/x.html`); `..`, `//` e caminhos codificados são recusados.
+
+| Tool               | Args                                            | Retorno                                                            |
+| ------------------ | ----------------------------------------------- | ------------------------------------------------------------------ |
+| `listar_workspace` | `caminho?`, `recursivo?`                        | `{ caminho, nos: [{ path, name, type, mime?, bytes, isPeca }] }`   |
+| `ler_arquivo`      | `caminho`                                       | texto → `{ conteudo, mime, bytes }`; peça → `{ url, mime, bytes }` |
+| `escrever_arquivo` | `caminho`, `conteudo`, `mime?`, `sobrescrever?` | `{ caminho, bytes, version, criado }`                              |
+| `criar_pasta`      | `caminho`                                       | `{ caminho, criado }`                                              |
+| `mover_no`         | `origem`, `destino`                             | `{ origem, destino }`                                              |
+| `excluir_no`       | `caminho`, `recursivo?`                         | `{ caminho, removidos }`                                           |
+
+```jsonc
+// criar um arquivo HTML (cria as pastas do caminho)
+{
+  "method": "tools/call",
+  "params": {
+    "name": "escrever_arquivo",
+    "arguments": { "caminho": "/campanha-x/landing.html", "conteudo": "<!doctype html>…" },
+  },
+}
+// → { "caminho": "/campanha-x/landing.html", "bytes": 1234, "version": 1, "criado": true }
+```
+
+- **Auto-save:** `gerar_imagem`/`gerar_locucao`/`gerar_post`/`gerar_carrossel` já salvam a peça no
+  workspace (pasta `/pecas/…`) automaticamente. Passe um `caminho` opcional na chamada de geração
+  para salvar onde preferir (ex.: `gerar_carrossel(..., "caminho": "/campanha-x")`).
+- **Sobrescrever:** `escrever_arquivo` recusa um arquivo que já existe a não ser que você mande
+  `sobrescrever: true`. Erros estruturados: `WORKSPACE_EXISTS`, `WORKSPACE_NOT_FOUND`,
+  `WORKSPACE_QUOTA_EXCEEDED`, `WORKSPACE_PATH_INVALID`, `WORKSPACE_FOLDER_NOT_EMPTY`.
+- **Motion no claude.ai web:** monte o roteiro e os blocos e **escreva o projeto no workspace**; o
+  usuário baixa pelo painel e faz o render do MP4 no PC dele (o render de vídeo não roda no servidor).
 
 ---
 
