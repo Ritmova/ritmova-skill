@@ -1,126 +1,119 @@
 ---
 name: ritmova
 description: >
-  A RITMOVA é um estúdio criativo com IA (via MCP): gera imagem, locução/voz e motion/vídeo, e dá
-  ao usuário um "computador online" (workspace de arquivos visível no painel do site). Use esta skill
-  quando o usuário perguntar o que é a RITMOVA, pedir para GERAR imagem, locução/voz, post, carrossel
-  ou motion/vídeo, pedir para criar/organizar pastas e arquivos, ou perguntar sobre tokens, saldo,
-  custo, planos (Free/Pro) e compra de tokens. Documenta as rotas MCP de geração (gerar_imagem,
-  gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito), as rotas de
-  workspace (listar_workspace, ler_arquivo, escrever_arquivo, criar_pasta, mover_no, excluir_no) e o
-  erro de upsell de saldo.
+  A RITMOVA é um estúdio criativo com IA via MCP: gera imagem, locução/voz, post, carrossel e
+  motion/vídeo de marketing, e guarda tudo num workspace ("computador online") por usuário. Use
+  quando o usuário pedir para gerar ou criar imagem, voz/locução, post, carrossel, vídeo ou motion;
+  quando perguntar o que é a RITMOVA; quando quiser ver, abrir, organizar, listar ou baixar suas
+  peças e arquivos; ou quando falar de tokens, saldo, créditos, custo, planos Free/Pro ou comprar
+  tokens.
 metadata:
-  tags: ritmova, mcp, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, obter_trilha, obter_efeito, sfx, trilha, carrossel, post, tokens, saldo, motion, geracao, workspace, computador online, arquivos, pastas, listar_workspace, escrever_arquivo
+  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
 ---
 
 # RITMOVA
 
-A **RITMOVA** é um **estúdio criativo com IA**: o usuário pede conteúdo de marketing em
-linguagem natural e o Claude **chama as tools da RITMOVA** para gerar.
+A RITMOVA é um estúdio criativo com IA: o usuário pede conteúdo de marketing em linguagem natural,
+você (Claude) chama as tools da RITMOVA para gerar, e o resultado fica guardado num workspace que o
+usuário acompanha pelo site. As chaves de API e o render ficam no servidor — você descreve o pedido
+e o cliente MCP faz o `tools/call`.
 
-## Etapa 0 — Auto-prompt obrigatório antes de qualquer construção
+## Pedido do usuário → tool
 
-Antes de produzir qualquer coisa (código, vídeo, arte, documento, campanha, etc.), você não começa a construir direto. Primeiro você escreve, para você mesmo, um prompt profissional com o plano completo do trabalho. Só depois de escrito e revisado esse auto-prompt você inicia a execução, seguindo-o.
+| O usuário quer…                       | Use                                                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| uma imagem avulsa                     | `gerar_imagem`                                                                                      |
+| uma locução / voz                     | `gerar_locucao` (Pro)                                                                               |
+| um post de feed                       | `gerar_post` (fluxo de 2 chamadas)                                                                  |
+| um carrossel                          | `gerar_carrossel` (fluxo de 2 chamadas)                                                             |
+| um vídeo narrado / motion             | `gerar_motion` (receita; render no cliente)                                                         |
+| ver/abrir/organizar pastas e arquivos | `listar_workspace` · `ler_arquivo` · `escrever_arquivo` · `criar_pasta` · `mover_no` · `excluir_no` |
+| ver as peças já criadas               | `listar_pecas`                                                                                      |
+| saber plano, saldo ou cota            | `get_account`                                                                                       |
+| assinar Pro / comprar tokens          | `assinar_pro` · `comprar_tokens`                                                                    |
 
-Faça nesta ordem:
+Contrato completo das tools (argumentos, exemplos, retorno): [rules/contrato-tools.md](rules/contrato-tools.md).
 
-1. Entenda a tarefa e defina os critérios de sucesso. Diga, em uma ou duas frases, qual é o resultado, para quem é, e o que significa "pronto" e "profissional" neste caso específico.
-2. Inspecione o MCP da Ritmova antes de planejar. Liste e leia as ferramentas e capacidades disponíveis no MCP da Ritmova para saber o que realmente pode usar. Não presuma o que existe — verifique.
-3. Pesquise como fazer o melhor trabalho possível. Reúna o que for necessário (requisitos, referências, restrições, boas práticas do formato em questão) para entregar algo de nível profissional na tarefa designada.
-4. Escreva o auto-prompt (o plano completo) aplicando boas práticas de criação de prompt:
-   - Papel e objetivo claros: defina o papel que você assume e o que deve ser entregue.
-   - Contexto e motivação: explique o porquê e para quem — isso melhora o foco do resultado.
-   - Critérios de sucesso explícitos e definição de "pronto".
-   - Passos sequenciais numerados, na ordem de execução.
-   - Quais ferramentas do MCP da Ritmova serão usadas e em que momento.
-   - Formato e estrutura da saída desejada — descreva o que fazer (e não apenas o que evitar).
-   - Exemplos quando ajudarem (few-shot), delimitados em tags <exemplo>…</exemplo>.
-   - Use tags XML para separar instruções, contexto e dados quando o prompt misturar esses elementos.
-   - Termine com uma etapa de autoverificação: revise a saída contra os critérios de sucesso antes de considerar o trabalho concluído.
-5. Investigue antes de afirmar. Não faça suposições sobre arquivos, dados ou ferramentas que você não abriu/verificou; baseie o plano no que confirmou.
-6. Só então construa, seguindo o auto-prompt. Mantenha o escopo no que foi pedido, sem complexidade desnecessária, e revise no final.
+## Etapa 0 — Planeje antes de construir
 
-**Se faltar informação, pergunte antes de construir.** Quando você não tiver o essencial para entregar algo profissional — cores e paleta, estética e estilo visual, tom de voz, público-alvo, formato e proporção, marca/logo, referências e duração (no caso de motion) — faça perguntas objetivas ao usuário em vez de presumir. Prefira poucas perguntas e específicas, oferecendo opções quando ajudar, e só avance para a construção quando o essencial estiver definido.
+Para qualquer entrega de produção (vídeo, arte, post, campanha), comece escrevendo para si mesmo um
+plano curto antes de executar — isso reduz erro de forma medida (Plan-and-Solve, ACL 2023; ferramenta
+`think` da Anthropic). Na ordem:
 
----
+1. Defina o resultado e os critérios de sucesso em 1–2 frases (o que é, para quem, o que é "pronto").
+2. Confira o que o MCP da RITMOVA oferece de fato — liste as tools antes de planejar, sem presumir.
+3. Reúna o que precisa para um resultado profissional (referências, restrições, boas práticas do formato).
+4. Escreva o plano: papel e objetivo, contexto e motivação, critérios de sucesso, passos numerados, quais
+   tools usar e quando, formato da saída, e uma autoverificação no fim. Use exemplos (few-shot) e tags XML
+   quando o conteúdo misturar instrução, contexto e dados.
+5. Construa seguindo o plano, mantenha o escopo, e revise no final.
 
-### Referência — boas práticas de prompt
-
-Base: fontes primárias (Anthropic / OpenAI / Google) + o repositório **[prompt-blueprint](https://github.com/thibaultyou/prompt-blueprint)**. Pontos que reforçam esta Etapa 0:
-
-- **Planejar antes de executar tem efeito medido** — separar o plano da execução reduz erro (Plan-and-Solve, ACL 2023; ferramenta `think` da Anthropic: +54% rel. em tau-bench). É a razão de esta etapa existir.
-- **Abra o auto-prompt com papel + objetivo + critérios de sucesso mensuráveis** e delimite as partes com tags (`<plano>`, `<contexto>`, `<tarefa>`, `<exemplo>`).
-- **Enquadre no positivo e calibre a intensidade** — diga o que fazer; evite linguagem agressiva ("CRÍTICO / VOCÊ DEVE"), que nos modelos recentes tende a causar overtriggering.
+Se faltar o essencial para algo profissional — paleta/cores, estética, tom de voz, público-alvo, formato e
+proporção, marca/logo, referências e duração (motion) — pergunte ao usuário antes de construir. Prefira
+poucas perguntas específicas, com opções quando ajudar.
 
 ## Ferramentas
 
-**Principais** (porta de entrada — **entregam a RECEITA**):
+**Geração (porta de entrada):**
 
-| Tool                  | Como usar                                                                                                                                                                                                                                                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`gerar_carrossel`** | **Chame SEM `slides`** → recebe a receita; autore o HTML de cada slide; **chame de novo com `slides`** → renderiza+cobra 1×                                                                                                                                                                                       |
-| **`gerar_post`**      | **Chame SEM `html`** → recebe a receita; autore o HTML; **chame de novo com `html`** → renderiza+cobra 1×                                                                                                                                                                                                         |
-| **`gerar_motion`**    | **Chame** → recebe a receita do vídeo (grátis). Você **monta e RENDERIZA o MP4 localmente** (Remotion), usando `obter_trilha` (trilha OBRIGATÓRIA — **cobra o preço-base do motion: Pro 3 tokens / Free a amostra única**, 1× por trabalho) + `gerar_locucao` (voz) + `gerar_imagem` (assets), que cobram à parte |
+| Tool                  | Como funciona                                                                                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`gerar_carrossel`** | 2 chamadas: chame sem `slides` para receber a receita; autore o HTML de cada slide seguindo-a; chame de novo com `slides` para renderizar (cobra 1× a peça) |
+| **`gerar_post`**      | 2 chamadas: chame sem `html` para receber a receita; autore o HTML; chame de novo com `html` para renderizar (cobra 1×)                                     |
+| **`gerar_motion`**    | 1 chamada: devolve a receita do vídeo (grátis). Você monta e renderiza o MP4 (Remotion) — ver "Como funciona"                                               |
 
-**Sub-ferramentas** (aprimoram as principais; também funcionam sozinhas):
+**Sub-ferramentas** (compõem as principais; também funcionam sozinhas):
 
-| Tool                | Para que serve                                                                                               |
-| ------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha p/ um asset avulso |
-| **`gerar_locucao`** | gera 1 locução / voz (Pro)                                                                                   |
-| **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — cobra o preço-base do motion             |
-| **`obter_efeito`**  | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — **grátis**, não cobra token nem cota    |
+| Tool                | Para que serve                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
+| **`gerar_locucao`** | gera 1 locução/voz (Pro)                                                                                       |
+| **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
+| **`obter_efeito`**  | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
+
+**Computador online (workspace)** — espaço de arquivos por usuário, visível no site. Útil para quem não
+tem Claude Code: você organiza o trabalho em pastas e arquivos que o usuário acessa pela web. As peças
+geradas já aparecem na pasta `/pecas`.
+
+| Tool                                                  | Para que serve                                                                 |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **`listar_workspace`**                                | lista pastas/arquivos (sem `caminho` = raiz; `recursivo:true` = tudo)          |
+| **`ler_arquivo`**                                     | lê um arquivo (texto/HTML volta como conteúdo; peça volta como URL)            |
+| **`escrever_arquivo`**                                | cria/sobrescreve um arquivo de texto/HTML (cria as pastas do caminho)          |
+| **`criar_pasta`** · **`mover_no`** · **`excluir_no`** | cria pasta · move/renomeia · exclui (`recursivo:true` para pasta com conteúdo) |
+
+As tools de geração aceitam um `caminho` opcional para salvar a peça onde você quiser (ex.:
+`gerar_carrossel(..., caminho:"/campanha-x")`).
 
 **Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
-`assinar_pro` (checkout Pro — upsell de `HIGH_BLOCKED`/`QUOTA_EXCEEDED`) · `comprar_tokens` (checkout
-de tokens — upsell `SEM_TOKENS`).
+`assinar_pro` · `comprar_tokens`.
 
-**Computador online (workspace) — pensado para quem NÃO tem Claude Code:** cada usuário tem um
-espaço de arquivos por conta, persistente, que ele vê e baixa no painel do site (ritmova.app). Você
-pode criar pastas, arquivos e HTML lá pelo MCP — assim quem usa só o **claude.ai web** organiza e
-guarda o trabalho sem um diretório local. As peças que você gera (imagem/voz/post/carrossel) **já
-aparecem automaticamente** no workspace, na pasta `/pecas/…`.
+## Como funciona
 
-| Tool                   | Para que serve                                                                    |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| **`listar_workspace`** | lista pastas/arquivos (sem `caminho` = raiz; `recursivo:true` = tudo) — read-only |
-| **`ler_arquivo`**      | lê um arquivo (texto/HTML volta como conteúdo; peça volta como URL temporária)    |
-| **`escrever_arquivo`** | cria/sobrescreve um arquivo de texto/HTML (cria as pastas do caminho)             |
-| **`criar_pasta`**      | cria uma pasta (e ancestrais)                                                     |
-| **`mover_no`**         | move/renomeia um arquivo ou pasta (com toda a subárvore)                          |
-| **`excluir_no`**       | exclui (pasta com conteúdo exige `recursivo:true`)                                |
+**Carrossel e post (2 chamadas).** A receita vem da própria tool: chame sem o conteúdo e ela devolve o
+guia (canvas 1080×1350, tipografia, canvas-panorama, o placeholder `{{img:<id>}}`). Autore o HTML
+seguindo a receita e chame de novo com o conteúdo — o servidor gera as imagens, renderiza (HTML→PNG) e
+cobra a peça 1×. Declare as imagens em `imagens:[{id,prompt}]` e referencie por `{{img:<id>}}` (o
+servidor as gera; não use `src` externo nem rode scripts). O resultado volta como URL assinada.
 
-> As tools de geração aceitam um `caminho` opcional p/ salvar a peça onde você quiser no workspace
-> (ex.: `gerar_carrossel(..., caminho:"/campanha-x")`). Use o workspace para deixar o trabalho
-> organizado e visível ao usuário leigo — é o diferencial de "não precisa do Claude Code".
-
-> **A receita vem da PRÓPRIA ferramenta.** Para carrossel/post, chame a tool principal **sem o
-> conteúdo** (`gerar_carrossel` sem `slides`, `gerar_post` sem `html`) → ela devolve a **RECEITA**
-> (canvas 1080×1350, tipografia, canvas-panorama, placeholder `{{img:<id>}}`). Autore o HTML
-> seguindo-a À RISCA e chame de novo com o conteúdo. **Não** rode scripts nem use chaves — as
-> imagens saem pela sub-ferramenta, declaradas em `imagens:[{id,prompt}]` e referenciadas por `{{img:<id>}}`.
-
-O resultado volta como **URL assinada** (carrossel/post são renderizados no servidor; o
-arquivo fica em storage privado). Contrato em [rules/contrato-tools.md](rules/contrato-tools.md).
-
-> **Motion (vídeo):** chame **`gerar_motion`** → ele devolve a **RECEITA** de motion (grátis).
-> Diferente do carrossel/post, **você** monta o projeto e **renderiza o MP4 na sua máquina**
-> (Remotion): gere a narração com `gerar_locucao` (o **áudio é a fonte do tempo**), obtenha a
-> **trilha OBRIGATÓRIA** com `obter_trilha` (é onde o motion é cobrado; as tags disponíveis estão
-> na própria descrição da tool) e os assets com `gerar_imagem`. Em clientes sem execução local
-> (ex.: claude.ai web) dá p/ montar o roteiro e os blocos, mas o render final precisa de um
-> ambiente local (Claude Code/desktop).
+**Fluxo do motion.** `gerar_motion` devolve a receita (grátis) e você monta o vídeo no cliente
+(Remotion): gere a narração com `gerar_locucao` (o áudio é a fonte do tempo), pegue a trilha com
+`obter_trilha` (faz parte da receita e é onde o motion é cobrado — pack licenciado, URL temporária),
+some os assets com `gerar_imagem` e efeitos com `obter_efeito`, e renderize o MP4. No claude.ai web dá
+para montar o roteiro e os blocos e escrever o projeto no workspace; o render final do vídeo roda no PC
+do usuário (Claude Code/desktop).
 
 ## Tokens e saldo
 
 - O **Pro** é pago em **tokens**; o **Free** tem **cota** (não tokens) e não libera `qualidade: "high"`.
-- **Pro sem saldo** → `SEM_TOKENS`: upsell com **pacotes de tokens** — **explique e ofereça a recarga**.
-  Pacotes: **Mini** 30 (R$ 34,90) · **Padrão** 50 (R$ 54,90) · **Turbo** 100 (R$ 109,90).
-- **Free pedindo `high`** → `HIGH_BLOCKED`, e **cota estourada** → `QUOTA_EXCEEDED`/`SLIDES_EXCEEDED`
-  (ou `PAUSED`): o upsell é **assinar o Pro** (não é recarga de tokens); aguardar o reset também resolve cota.
+- **Pro sem saldo** → erro `SEM_TOKENS`: ele já traz os pacotes de recarga atuais e os preços — explique o
+  saldo e ofereça o que vier no erro (não invente valores). Não retente sozinho.
+- **Free pedindo `high`** → `HIGH_BLOCKED`; **cota estourada** → `QUOTA_EXCEEDED`/`SLIDES_EXCEEDED` (ou
+  `PAUSED`): o caminho é assinar o Pro; aguardar o reset mensal também resolve cota.
 
 ## Ao atender o usuário
 
-- Para **gerar**, descreva o pedido na tool certa — o cliente MCP faz o `tools/call`.
-- Ao receber **`SEM_TOKENS`**: explique o saldo e ofereça os pacotes; não retente sozinho.
-- Nunca peça nem exponha chaves de API.
+- Para gerar, descreva o pedido na tool certa — o cliente MCP faz o `tools/call`.
+- Trate os erros de upsell (`SEM_TOKENS`, `HIGH_BLOCKED`, `QUOTA_EXCEEDED`) explicando o saldo/plano e
+  oferecendo o caminho que o erro indica.
+- Não peça nem exponha chaves de API.
