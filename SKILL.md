@@ -103,6 +103,11 @@ some os assets com `gerar_imagem` e efeitos com `obter_efeito`, e renderize o MP
 para montar o roteiro e os blocos e escrever o projeto no workspace; o render final do vídeo roda no PC
 do usuário (Claude Code/desktop).
 
+**Link compartilhável (storage).** Toda peça gerada é guardada no storage da RITMOVA, e o resultado
+traz um campo `compartilhar`: no carrossel, `compartilhar.shareUrl` é um **link único** com visualizador
+de setas + download ZIP; em imagem/post/locução, `compartilhar.mediaUrl` aponta a mídia. Ofereça esse
+link ao usuário — é o jeito mais fácil de ele ver, baixar e compartilhar a peça.
+
 ## Tokens e saldo
 
 - O **Pro** é pago em **tokens**; o **Free** tem **cota** (não tokens) e não libera `qualidade: "high"`.

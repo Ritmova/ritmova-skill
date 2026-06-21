@@ -187,6 +187,11 @@ Retorno:
       ],
       "tokensCobrados": 0.11,
       "saldo": 95.7,
+      // Link compartilhável no storage (visualizador de setas + ZIP) — ofereça ao usuário.
+      "compartilhar": {
+        "shareUrl": "https://storage.ritmova.app/c/AbC123…",
+        "downloadUrl": "https://storage.ritmova.app/carousel/…/download",
+      },
     },
   },
 }
@@ -379,3 +384,7 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
   peça** (nunca por slide). Já `gerar_motion` ENTREGA a receita e é VOCÊ (cliente) que compõe os
   blocos atômicos (`gerar_locucao`/`gerar_imagem`) e renderiza o vídeo localmente.
 - O resultado volta como **URL** (o cliente baixa o arquivo); as chaves de API ficam no servidor.
+- Toda peça gerada também é guardada no **storage da RITMOVA**, e o retorno traz `compartilhar`:
+  carrossel → `compartilhar.shareUrl` (link único com visualizador de setas + ZIP); imagem/post/voz →
+  `compartilhar.mediaUrl`. Ofereça esse link ao usuário. É best-effort: se vier ausente, entregue as
+  URLs normais mesmo assim.
