@@ -8,7 +8,7 @@ description: >
   erro estruturado de upsell SEM_TOKENS. Carregue ao gerar qualquer peça, criar/organizar arquivos,
   ou tratar saldo insuficiente.
 metadata:
-  tags: contrato, tools, gerar_imagem, gerar_locucao, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, listar_workspace, escrever_arquivo, workspace, computador online, arquivos, tools/call, upsell, tokens, mcp
+  tags: contrato, tools, gerar_imagem, gerar_locucao, voz, listar_vozes, buscar_vozes_biblioteca, adicionar_voz, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, listar_workspace, escrever_arquivo, workspace, computador online, arquivos, tools/call, upsell, tokens, mcp
 ---
 
 # Contrato das tools MCP (geração)
@@ -84,10 +84,10 @@ Retorno (o que o Claude recebe):
 
 Argumentos que o Claude manda:
 
-| Campo   | Tipo   | Default                | Observação                                       |
-| ------- | ------ | ---------------------- | ------------------------------------------------ |
-| `texto` | string | —                      | o que será falado (obrigatório)                  |
-| `voz`   | string | voz padrão do servidor | opcional; id de voz ElevenLabs (omita p/ padrão) |
+| Campo   | Tipo   | Default                | Observação                                                                                     |
+| ------- | ------ | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `texto` | string | —                      | o que será falado (obrigatório)                                                                |
+| `voz`   | string | voz padrão do servidor | opcional; `voiceId` de `listar_vozes` (omita p/ padrão). Voz fora da conta → `VOICE_NOT_FOUND` |
 
 Chamada (o que o Claude emite):
 
@@ -122,6 +122,39 @@ Retorno (o que o Claude recebe):
   },
 }
 ```
+
+---
+
+## 🗣️ Seleção de voz — `listar_vozes` · `buscar_vozes_biblioteca` · `adicionar_voz`
+
+Descobrir/escolher a voz da locução. As vozes vêm da conta ElevenLabs da RITMOVA (a chave fica no
+servidor); passe o `voiceId` em `voz` no `gerar_locucao`.
+
+| Tool                                  | Args                               | Retorno                                                                |
+| ------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------- |
+| `listar_vozes` (grátis, read-only)    | `filtro?` (nome/labels)            | `{ vozes: [{ voiceId, name, category?, labels?, previewUrl? }] }`      |
+| `buscar_vozes_biblioteca` (read-only) | `busca?`, `idioma?`, `genero?`     | `{ vozes: [{ voiceId, publicOwnerId, name, gender?, language?, … }] }` |
+| `adicionar_voz`                       | `publicOwnerId`, `voiceId`, `nome` | `{ voiceId, name, jaPresente }` (ou erro `VOICE_CAP_REACHED`)          |
+
+```jsonc
+// 1) listar e escolher uma voz
+{ "method": "tools/call", "params": { "name": "listar_vozes", "arguments": { "filtro": "feminina" } } }
+// → { "vozes": [{ "voiceId": "EXAV…", "name": "Bella", "labels": { "gender": "female" } }] }
+
+// 2) usar a voz escolhida na locução
+{ "method": "tools/call", "params": { "name": "gerar_locucao",
+  "arguments": { "texto": "…", "voz": "EXAV…" } } }
+
+// 3) (opcional) trazer uma voz da biblioteca pública para a conta e então usá-la em `voz`
+{ "method": "tools/call", "params": { "name": "buscar_vozes_biblioteca",
+  "arguments": { "busca": "narrador", "idioma": "pt" } } }
+{ "method": "tools/call", "params": { "name": "adicionar_voz",
+  "arguments": { "publicOwnerId": "owner…", "voiceId": "lib…", "nome": "Narrador PT" } } }
+```
+
+- O TTS só aceita voz **já na conta** → uma voz da biblioteca precisa de `adicionar_voz` antes.
+- `adicionar_voz` muta a conta **compartilhada** (a voz fica disponível a todos); há dedup (por nome)
+  e um **teto** de vozes — ao atingir, volta `VOICE_CAP_REACHED`.
 
 ---
 
@@ -367,12 +400,15 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 **Free** — cota/qualidade: o upsell é **assinar o Pro** (`upsell.suggestedPlan: "pro"`, **sem**
 `packages`); aguardar o reset mensal também resolve cota.
 
-| code              | quando                                                                       |
-| ----------------- | ---------------------------------------------------------------------------- |
-| `HIGH_BLOCKED`    | pediu `qualidade: "high"` (exclusivo do Pro)                                 |
-| `QUOTA_EXCEEDED`  | estourou posts/carrosséis/motion do mês, ou pediu locução no Free (Pro-only) |
-| `SLIDES_EXCEEDED` | slides acima do máximo do plano (`slides.length > slidesMax`)                |
-| `PAUSED`          | geração do Free pausada (kill switch)                                        |
+| code                | quando                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `HIGH_BLOCKED`      | pediu `qualidade: "high"` (exclusivo do Pro)                                 |
+| `QUOTA_EXCEEDED`    | estourou posts/carrosséis/motion do mês, ou pediu locução no Free (Pro-only) |
+| `SLIDES_EXCEEDED`   | slides acima do máximo do plano (`slides.length > slidesMax`)                |
+| `PAUSED`            | geração do Free pausada (kill switch)                                        |
+| `VOICE_NOT_FOUND`   | `voz` informada não está na conta — use `listar_vozes`                       |
+| `VOICE_UNAVAILABLE` | a voz sumiu da conta entre a escolha e a geração — escolha outra             |
+| `VOICE_CAP_REACHED` | `adicionar_voz`: a conta atingiu o teto de vozes                             |
 
 ---
 

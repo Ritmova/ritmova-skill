@@ -8,7 +8,7 @@ description: >
   peças e arquivos; ou quando falar de tokens, saldo, créditos, custo, planos Free/Pro ou comprar
   tokens.
 metadata:
-  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
+  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, escolher voz, listar vozes, vozes, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
 ---
 
 # RITMOVA
@@ -23,7 +23,9 @@ e o cliente MCP faz o `tools/call`.
 | O usuário quer…                       | Use                                                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | uma imagem avulsa                     | `gerar_imagem`                                                                                      |
-| uma locução / voz                     | `gerar_locucao` (Pro)                                                                               |
+| uma locução / voz                     | `gerar_locucao` (Pro) — passe `voz` p/ escolher a voz                                               |
+| ver/escolher as vozes disponíveis     | `listar_vozes` (grátis)                                                                             |
+| trazer uma voz nova da biblioteca     | `buscar_vozes_biblioteca` → `adicionar_voz`                                                         |
 | um post de feed                       | `gerar_post` (fluxo de 2 chamadas)                                                                  |
 | um carrossel                          | `gerar_carrossel` (fluxo de 2 chamadas)                                                             |
 | um vídeo narrado / motion             | `gerar_motion` (receita; render no cliente)                                                         |
@@ -64,12 +66,15 @@ poucas perguntas específicas, com opções quando ajudar.
 
 **Sub-ferramentas** (compõem as principais; também funcionam sozinhas):
 
-| Tool                | Para que serve                                                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
-| **`gerar_locucao`** | gera 1 locução/voz (Pro)                                                                                       |
-| **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
-| **`obter_efeito`**  | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
+| Tool                          | Para que serve                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`gerar_imagem`**            | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
+| **`gerar_locucao`**           | gera 1 locução/voz (Pro). Passe `voz` (id de `listar_vozes`) p/ escolher a voz; omita p/ a padrão              |
+| **`listar_vozes`**            | lista as vozes disponíveis na conta (filtro por nome/labels) — grátis, read-only                               |
+| **`buscar_vozes_biblioteca`** | busca vozes na biblioteca pública do ElevenLabs (`busca`/`idioma`/`genero`) — read-only                        |
+| **`adicionar_voz`**           | traz uma voz da biblioteca p/ a conta (depois dá p/ usá-la em `voz`) — a conta é compartilhada                 |
+| **`obter_trilha`**            | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
+| **`obter_efeito`**            | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
 
 **Computador online (workspace)** — espaço de arquivos por usuário, visível no site. Útil para quem não
 tem Claude Code: você organiza o trabalho em pastas e arquivos que o usuário acessa pela web. As peças
@@ -102,6 +107,11 @@ servidor as gera; não use `src` externo nem rode scripts). O resultado volta co
 some os assets com `gerar_imagem` e efeitos com `obter_efeito`, e renderize o MP4. No claude.ai web dá
 para montar o roteiro e os blocos e escrever o projeto no workspace; o render final do vídeo roda no PC
 do usuário (Claude Code/desktop).
+
+**Seleção de voz.** Por padrão a locução usa a voz padrão da RITMOVA. Para escolher outra, chame
+`listar_vozes` e passe o `voiceId` em `voz` no `gerar_locucao`. Para uma voz que ainda não está na
+conta, use `buscar_vozes_biblioteca` e depois `adicionar_voz` (ela passa a ficar disponível para
+todos). Voz inválida volta `VOICE_NOT_FOUND` — liste e tente de novo.
 
 **Link compartilhável (storage).** Toda peça gerada é guardada no storage da RITMOVA, e o resultado
 traz um campo `compartilhar`: no carrossel, `compartilhar.shareUrl` é um **link único** com visualizador
