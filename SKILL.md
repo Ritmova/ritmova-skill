@@ -8,7 +8,7 @@ description: >
   peças e arquivos; ou quando falar de tokens, saldo, créditos, custo, planos Free/Pro ou comprar
   tokens.
 metadata:
-  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, escolher voz, listar vozes, vozes, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
+  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, escolher voz, listar vozes, salvar voz, vozes salvas, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
 ---
 
 # RITMOVA
@@ -23,9 +23,9 @@ e o cliente MCP faz o `tools/call`.
 | O usuário quer…                       | Use                                                                                                 |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | uma imagem avulsa                     | `gerar_imagem`                                                                                      |
-| uma locução / voz                     | `gerar_locucao` (Pro) — passe `voz` p/ escolher a voz                                               |
-| ver/escolher as vozes disponíveis     | `listar_vozes` (grátis)                                                                             |
-| trazer uma voz nova da biblioteca     | `buscar_vozes_biblioteca` → `adicionar_voz`                                                         |
+| uma locução / voz                     | `gerar_locucao` (Pro) — passe `voz` (uma das vozes salvas)                                          |
+| ver as vozes salvas da conta          | `listar_vozes` (grátis)                                                                             |
+| salvar / remover uma voz da lista     | `buscar_vozes_biblioteca` → `salvar_voz` · `remover_voz`                                            |
 | um post de feed                       | `gerar_post` (fluxo de 2 chamadas)                                                                  |
 | um carrossel                          | `gerar_carrossel` (fluxo de 2 chamadas)                                                             |
 | um vídeo narrado / motion             | `gerar_motion` (receita; render no cliente)                                                         |
@@ -69,10 +69,11 @@ poucas perguntas específicas, com opções quando ajudar.
 | Tool                          | Para que serve                                                                                                 |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **`gerar_imagem`**            | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
-| **`gerar_locucao`**           | gera 1 locução/voz (Pro). Passe `voz` (id de `listar_vozes`) p/ escolher a voz; omita p/ a padrão              |
-| **`listar_vozes`**            | lista as vozes disponíveis na conta (filtro por nome/labels) — grátis, read-only                               |
+| **`gerar_locucao`**           | gera 1 locução/voz (Pro). Passe `voz` = id de uma voz SALVA (via `listar_vozes`); omita p/ a padrão            |
+| **`listar_vozes`**            | lista as vozes SALVAS desta conta (nome + id) — grátis, read-only. É o que você mostra ao usuário              |
 | **`buscar_vozes_biblioteca`** | busca vozes na biblioteca pública do ElevenLabs (`busca`/`idioma`/`genero`) — read-only                        |
-| **`adicionar_voz`**           | traz uma voz da biblioteca p/ a conta (depois dá p/ usá-la em `voz`) — a conta é compartilhada                 |
+| **`salvar_voz`**              | salva uma voz na lista DESTA conta; se vier da biblioteca, passe `publicOwnerId` (eu trago pra conta)          |
+| **`remover_voz`**             | tira uma voz da lista desta conta (não apaga da conta ElevenLabs)                                              |
 | **`obter_trilha`**            | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
 | **`obter_efeito`**            | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
 
@@ -102,16 +103,23 @@ cobra a peça 1×. Declare as imagens em `imagens:[{id,prompt}]` e referencie po
 servidor as gera; não use `src` externo nem rode scripts). O resultado volta como URL assinada.
 
 **Fluxo do motion.** `gerar_motion` devolve a receita (grátis) e você monta o vídeo no cliente
-(Remotion): gere a narração com `gerar_locucao` (o áudio é a fonte do tempo), pegue a trilha com
+(Remotion): **escolha a voz** (veja "Seleção de voz" — não use voz genérica) e gere a narração com
+`gerar_locucao` (o áudio é a fonte do tempo), pegue a trilha com
 `obter_trilha` (faz parte da receita e é onde o motion é cobrado — pack licenciado, URL temporária),
 some os assets com `gerar_imagem` e efeitos com `obter_efeito`, e renderize o MP4. No claude.ai web dá
 para montar o roteiro e os blocos e escrever o projeto no workspace; o render final do vídeo roda no PC
 do usuário (Claude Code/desktop).
 
-**Seleção de voz.** Por padrão a locução usa a voz padrão da RITMOVA. Para escolher outra, chame
-`listar_vozes` e passe o `voiceId` em `voz` no `gerar_locucao`. Para uma voz que ainda não está na
-conta, use `buscar_vozes_biblioteca` e depois `adicionar_voz` (ela passa a ficar disponível para
-todos). Voz inválida volta `VOICE_NOT_FOUND` — liste e tente de novo.
+**Seleção de voz (por conta).** Cada conta tem a SUA lista de vozes salvas — `listar_vozes` mostra
+só as desta conta. Para escolher, chame `listar_vozes` e passe o `voiceId` em `voz` no
+`gerar_locucao`. Para adicionar uma voz nova, ache em `buscar_vozes_biblioteca` e salve com
+`salvar_voz` (passando o `publicOwnerId`); `remover_voz` tira da lista. Voz não salva → `VOICE_NOT_FOUND`.
+
+**No motion, a voz importa — NÃO use uma voz genérica.** Antes de gerar a narração, chame
+`listar_vozes`. Se houver vozes salvas, mostre (nome + id) e **pergunte qual usar**. Se a lista
+estiver **vazia**, **NÃO** caia na voz padrão: **sugira opções** — use `buscar_vozes_biblioteca`
+(apresente 2–3 candidatas com nome/idioma/gênero), ajude o usuário a **salvar** a escolhida com
+`salvar_voz`, e só então gere a narração com aquela `voz`. A voz é parte da identidade do vídeo.
 
 **Link compartilhável (storage).** Toda peça gerada é guardada no storage da RITMOVA, e o resultado
 traz um campo `compartilhar`: no carrossel, `compartilhar.shareUrl` é um **link único** com visualizador
