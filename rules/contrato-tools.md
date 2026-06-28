@@ -8,7 +8,7 @@ description: >
   erro estruturado de upsell SEM_TOKENS. Carregue ao gerar qualquer peça, criar/organizar arquivos,
   ou tratar saldo insuficiente.
 metadata:
-  tags: contrato, tools, gerar_imagem, gerar_locucao, voz, listar_vozes, buscar_vozes_biblioteca, salvar_voz, remover_voz, vozes salvas, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, listar_workspace, escrever_arquivo, workspace, computador online, arquivos, tools/call, upsell, tokens, mcp
+  tags: contrato, tools, gerar_imagem, gerar_locucao, voz, listar_vozes, buscar_vozes, salvar_voz, remover_voz, vozes salvas, gerar_carrossel, gerar_post, gerar_motion, obter_trilha, obter_efeito, listar_workspace, escrever_arquivo, workspace, computador online, arquivos, tools/call, upsell, tokens, mcp
 ---
 
 # Contrato das tools MCP (geração)
@@ -125,18 +125,18 @@ Retorno (o que o Claude recebe):
 
 ---
 
-## 🗣️ Seleção de voz — `listar_vozes` · `buscar_vozes_biblioteca` · `salvar_voz` · `remover_voz`
+## 🗣️ Seleção de voz — `listar_vozes` · `buscar_vozes` · `salvar_voz` · `remover_voz`
 
-Cada conta tem a SUA lista de vozes salvas. A conta ElevenLabs é única (a chave fica no servidor),
-mas **cada conta só vê/usa o que salvou** — ninguém herda a voz do outro. Passe o `voiceId` da voz
-escolhida em `voz` no `gerar_locucao`.
+Cada conta tem a SUA lista de vozes salvas (no NOSSO banco). A conta ElevenLabs é única (a chave fica
+no servidor) e **NÃO é tocada** — `salvar_voz` só grava o id no nosso banco. **Cada conta só vê/usa o
+que salvou.** Passe o `voiceId` da voz escolhida em `voz` no `gerar_locucao`.
 
-| Tool                                  | Args                                | Retorno                                                                    |
-| ------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------- |
-| `listar_vozes` (grátis, read-only)    | `filtro?` (nome/id)                 | as vozes SALVAS desta conta: `{ vozes: [{ voiceId, name }] }`              |
-| `buscar_vozes_biblioteca` (read-only) | `busca?`, `idioma?`, `genero?`      | `{ vozes: [{ voiceId, publicOwnerId, name, gender?, language?, … }] }`     |
-| `salvar_voz`                          | `voiceId`, `nome`, `publicOwnerId?` | salva na lista da conta: `{ voiceId, name }` (ou erro `VOICE_CAP_REACHED`) |
-| `remover_voz`                         | `voiceId`                           | `{ removed }` (tira da lista; não apaga da conta ElevenLabs)               |
+| Tool                               | Args                           | Retorno                                                                                             |
+| ---------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `listar_vozes` (grátis, read-only) | `filtro?` (nome/id)            | as vozes SALVAS desta conta: `{ vozes: [{ voiceId, name }] }`                                       |
+| `buscar_vozes` (read-only)         | `busca?`, `idioma?`, `genero?` | catálogo do ElevenLabs (premade + da conta): `{ vozes: [{ voiceId, name, labels?, previewUrl? }] }` |
+| `salvar_voz`                       | `voiceId`, `nome`              | salva o id na lista (NOSSO banco): `{ voiceId, name }`                                              |
+| `remover_voz`                      | `voiceId`                      | `{ removed }` (tira da lista; não apaga da conta ElevenLabs)                                        |
 
 ```jsonc
 // 1) ver as vozes salvas e escolher uma
@@ -147,18 +147,19 @@ escolhida em `voz` no `gerar_locucao`.
 { "method": "tools/call", "params": { "name": "gerar_locucao",
   "arguments": { "texto": "…", "voz": "EXAV…" } } }
 
-// 3) salvar uma voz nova: ache na biblioteca e salve (eu trago pra conta com o publicOwnerId)
-{ "method": "tools/call", "params": { "name": "buscar_vozes_biblioteca",
+// 3) salvar uma voz nova: ache no catálogo e salve (só voiceId + nome — NADA na conta ElevenLabs)
+{ "method": "tools/call", "params": { "name": "buscar_vozes",
   "arguments": { "busca": "narrador", "idioma": "pt" } } }
 { "method": "tools/call", "params": { "name": "salvar_voz",
-  "arguments": { "publicOwnerId": "owner…", "voiceId": "lib…", "nome": "Narrador PT" } } }
+  "arguments": { "voiceId": "EXAV…", "nome": "Narrador PT" } } }
 ```
 
 - `gerar_locucao` só aceita voz que esteja **salva** pela conta (senão `VOICE_NOT_FOUND`).
-- `salvar_voz` com `publicOwnerId` traz a voz da biblioteca para a conta (dedup por nome + teto
-  `VOICE_CAP_REACHED`); sem `publicOwnerId`, a voz já deve estar na conta.
+- `salvar_voz` NÃO escreve nada na conta ElevenLabs — só no nosso banco. O catálogo (`buscar_vozes`)
+  traz só vozes **premade/da conta** (o TTS aceita direto). Vozes da biblioteca da COMUNIDADE não
+  entram (exigiriam adicionar à conta). `voiceId` fora do catálogo → `VOICE_NOT_FOUND`.
 - **Motion:** antes da narração, chame `listar_vozes`. Lista vazia? **NÃO** use a voz padrão —
-  **sugira** opções via `buscar_vozes_biblioteca`, ajude a `salvar_voz`, e pergunte qual usar.
+  **sugira** opções via `buscar_vozes`, ajude a `salvar_voz`, e pergunte qual usar.
 
 ---
 
@@ -441,7 +442,6 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
 | `PAUSED`            | geração do Free pausada (kill switch)                                        |
 | `VOICE_NOT_FOUND`   | `voz` não está nas vozes salvas da conta — use `listar_vozes`/`salvar_voz`   |
 | `VOICE_UNAVAILABLE` | a voz sumiu da conta entre a escolha e a geração — escolha outra             |
-| `VOICE_CAP_REACHED` | `salvar_voz` (biblioteca): a conta atingiu o teto de vozes                   |
 
 ---
 
