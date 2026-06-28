@@ -224,11 +224,9 @@ Retorno:
       ],
       "tokensCobrados": 0.11,
       "saldo": 95.7,
-      // Link compartilhável no storage (visualizador de setas + ZIP) — ofereça ao usuário.
-      "compartilhar": {
-        "shareUrl": "https://storage.ritmova.app/c/AbC123…",
-        "downloadUrl": "https://storage.ritmova.app/carousel/…/download",
-      },
+      // Link compartilhável público (string) + o ZIP à parte — ofereça ao usuário.
+      "compartilhar": "https://storage.ritmova.app/c/AbC123…",
+      "compartilharDownload": "https://storage.ritmova.app/carousel/…/download",
     },
   },
 }
@@ -374,6 +372,37 @@ Tudo é **tenant-scoped** (cada conta só enxerga o seu) e **não cobra tokens**
 
 ---
 
+## 🔗 `gerar_link_unico` — recuperar/renovar o link compartilhável
+
+Gera (ou renova) o **link público** de uma peça **já criada** —
+`storage.ritmova.app/c/:token` (visualizador + ZIP) — re-espelhando os bytes que já estão no
+storage. **NÃO cobra** (não re-gera nada). Vale p/ **carrossel, imagem e post** (peça única vira
+"carrossel de 1 item" e também fica pública). **Voz/motion não se aplicam.** Sem `pecaId`, usa a
+peça elegível mais recente (ache os ids em `listar_pecas`).
+
+| Campo     | Tipo    | Default | Observação                                                       |
+| --------- | ------- | ------- | --------------------------------------------------------------- |
+| `pecaId`  | string  | —       | id da peça (de `listar_pecas`); ausente ⇒ mais recente elegível |
+| `renovar` | boolean | `false` | força um link novo (ex.: o token de 30 dias expirou)            |
+
+```jsonc
+{
+  "jsonrpc": "2.0",
+  "id": 20,
+  "method": "tools/call",
+  "params": { "name": "gerar_link_unico", "arguments": { "pecaId": "a1b2…" } },
+}
+// Retorno:
+// result.content[0].text = "Link pronto: https://storage.ritmova.app/c/abc123"
+// result.structuredContent = { compartilhar: "https://storage.ritmova.app/c/abc123",
+//                              compartilharDownload: "https://storage.ritmova.app/carousel/…/download" }
+```
+
+Erros (`structuredContent.code`): `PECA_NAO_ENCONTRADA`, `PECA_INCOMPLETA`, `TIPO_NAO_SUPORTADO`
+(voz/motion), `STORAGE_DESABILITADO`, `LINK_FALHOU` (falha ao enviar — tente de novo).
+
+---
+
 ## Erros de upsell (estruturados — nunca 500)
 
 A rota devolve `isError: true` + `structuredContent.code` em vez do resultado. **Explique e
@@ -424,7 +453,7 @@ ofereça o caminho certo; nunca retente sozinho nem trate como falha técnica.**
   peça** (nunca por slide). Já `gerar_motion` ENTREGA a receita e é VOCÊ (cliente) que compõe os
   blocos atômicos (`gerar_locucao`/`gerar_imagem`) e renderiza o vídeo localmente.
 - O resultado volta como **URL** (o cliente baixa o arquivo); as chaves de API ficam no servidor.
-- Toda peça gerada também é guardada no **storage da RITMOVA**, e o retorno traz `compartilhar`:
-  carrossel → `compartilhar.shareUrl` (link único com visualizador de setas + ZIP); imagem/post/voz →
-  `compartilhar.mediaUrl`. Ofereça esse link ao usuário. É best-effort: se vier ausente, entregue as
-  URLs normais mesmo assim.
+- Toda peça gerada também é guardada no **storage da RITMOVA**, e o retorno traz `compartilhar` —
+  uma **string** com o link público `storage.ritmova.app/c/:token` (carrossel, imagem e post); o ZIP
+  vem em `compartilharDownload`. Para recuperar/renovar o link de uma peça já criada, use
+  `gerar_link_unico`. É best-effort: se vier ausente, entregue as URLs normais mesmo assim.

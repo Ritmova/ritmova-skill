@@ -5,10 +5,10 @@ description: >
   motion/vídeo de marketing, e guarda tudo num workspace ("computador online") por usuário. Use
   quando o usuário pedir para gerar ou criar imagem, voz/locução, post, carrossel, vídeo ou motion;
   quando perguntar o que é a RITMOVA; quando quiser ver, abrir, organizar, listar ou baixar suas
-  peças e arquivos; ou quando falar de tokens, saldo, créditos, custo, planos Free/Pro ou comprar
-  tokens.
+  peças e arquivos; quando falar de tokens, saldo, créditos, custo, planos Free/Pro ou comprar
+  tokens; ou quando pedir o LINK compartilhável de uma peça já criada (gerar_link_unico).
 metadata:
-  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, escolher voz, listar vozes, salvar voz, vozes salvas, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao
+  tags: ritmova, mcp, gerar imagem, gerar locucao, voz, escolher voz, listar vozes, salvar voz, vozes salvas, gerar post, gerar carrossel, gerar motion, video, obter trilha, obter efeito, sfx, workspace, computador online, arquivos, pecas, tokens, saldo, creditos, planos, geracao, gerar link unico, link compartilhavel, compartilhar
 ---
 
 # RITMOVA
@@ -31,6 +31,7 @@ e o cliente MCP faz o `tools/call`.
 | um vídeo narrado / motion             | `gerar_motion` (receita; render no cliente)                                                         |
 | ver/abrir/organizar pastas e arquivos | `listar_workspace` · `ler_arquivo` · `escrever_arquivo` · `criar_pasta` · `mover_no` · `excluir_no` |
 | ver as peças já criadas               | `listar_pecas`                                                                                      |
+| o link compartilhável de uma peça     | `gerar_link_unico` (grátis; recupera/renova o link público `/c/:token`)                             |
 | saber plano, saldo ou cota            | `get_account`                                                                                       |
 | assinar Pro / comprar tokens          | `assinar_pro` · `comprar_tokens`                                                                    |
 
@@ -92,7 +93,8 @@ As tools de geração aceitam um `caminho` opcional para salvar a peça onde voc
 `gerar_carrossel(..., caminho:"/campanha-x")`).
 
 **Conta & billing:** `get_account` (plano/saldo/cota) · `listar_pecas` (peças geradas, com links) ·
-`assinar_pro` · `comprar_tokens`.
+`gerar_link_unico` (recupera/renova o link público de uma peça já criada — grátis) · `assinar_pro` ·
+`comprar_tokens`.
 
 ## Como funciona
 
@@ -122,9 +124,12 @@ estiver **vazia**, **NÃO** caia na voz padrão: **sugira opções** — use `bu
 `salvar_voz`, e só então gere a narração com aquela `voz`. A voz é parte da identidade do vídeo.
 
 **Link compartilhável (storage).** Toda peça gerada é guardada no storage da RITMOVA, e o resultado
-traz um campo `compartilhar`: no carrossel, `compartilhar.shareUrl` é um **link único** com visualizador
-de setas + download ZIP; em imagem/post/locução, `compartilhar.mediaUrl` aponta a mídia. Ofereça esse
-link ao usuário — é o jeito mais fácil de ele ver, baixar e compartilhar a peça.
+traz `compartilhar` — uma **string** com o **link público** `storage.ritmova.app/c/:token`
+(visualizador de setas + download; o ZIP vem em `compartilharDownload`). Vale para **carrossel,
+imagem e post**. Ofereça esse link ao usuário — é o jeito mais fácil de ver, baixar e compartilhar.
+Se ele perdeu o link de uma peça já criada (ou ele expirou), use **`gerar_link_unico`** (passe o
+`pecaId` de `listar_pecas`, ou nada para a peça mais recente) — recupera/renova o link **sem custo**
+(não re-gera nada). Voz e motion não têm esse link.
 
 ## Tokens e saldo
 
