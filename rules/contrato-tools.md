@@ -380,7 +380,7 @@ storage. **NÃO cobra** (não re-gera nada). Vale p/ **carrossel, imagem e post*
 "carrossel de 1 item" e também fica pública). **Voz/motion não se aplicam.** Sem `pecaId`, usa a
 peça elegível mais recente (ache os ids em `listar_pecas`).
 
-| Campo     | Tipo    | Default | Observação                                                       |
+| Campo     | Tipo    | Default | Observação                                                      |
 | --------- | ------- | ------- | --------------------------------------------------------------- |
 | `pecaId`  | string  | —       | id da peça (de `listar_pecas`); ausente ⇒ mais recente elegível |
 | `renovar` | boolean | `false` | força um link novo (ex.: o token de 30 dias expirou)            |
