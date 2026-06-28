@@ -25,7 +25,7 @@ e o cliente MCP faz o `tools/call`.
 | uma imagem avulsa                     | `gerar_imagem`                                                                                      |
 | uma locução / voz                     | `gerar_locucao` (Pro) — passe `voz` (uma das vozes salvas)                                          |
 | ver as vozes salvas da conta          | `listar_vozes` (grátis)                                                                             |
-| salvar / remover uma voz da lista     | `buscar_vozes` → `salvar_voz` · `remover_voz`                                            |
+| salvar / remover uma voz da lista     | `buscar_vozes` → `salvar_voz` · `remover_voz`                                                       |
 | um post de feed                       | `gerar_post` (fluxo de 2 chamadas)                                                                  |
 | um carrossel                          | `gerar_carrossel` (fluxo de 2 chamadas)                                                             |
 | um vídeo narrado / motion             | `gerar_motion` (receita; render no cliente)                                                         |
@@ -67,16 +67,16 @@ poucas perguntas específicas, com opções quando ajudar.
 
 **Sub-ferramentas** (compõem as principais; também funcionam sozinhas):
 
-| Tool                          | Para que serve                                                                                                 |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **`gerar_imagem`**            | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
-| **`gerar_locucao`**           | gera 1 locução/voz (Pro). Passe `voz` = id de uma voz SALVA (via `listar_vozes`); omita p/ a padrão            |
-| **`listar_vozes`**            | lista as vozes SALVAS desta conta (nome + id) — grátis, read-only. É o que você mostra ao usuário              |
-| **`buscar_vozes`** | busca no catálogo do ElevenLabs (premade + da conta) por `busca`/`idioma`/`genero` — read-only                        |
-| **`salvar_voz`**              | salva o `voiceId` (do catálogo) na lista DESTA conta — só no NOSSO banco, NADA é adicionado à conta ElevenLabs          |
-| **`remover_voz`**             | tira uma voz da lista desta conta (não apaga da conta ElevenLabs)                                              |
-| **`obter_trilha`**            | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
-| **`obter_efeito`**            | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
+| Tool                | Para que serve                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **`gerar_imagem`**  | gera 1 imagem (GPT Image). As principais geram por dentro via `{{img:<id>}}`; use sozinha para um asset avulso |
+| **`gerar_locucao`** | gera 1 locução/voz (Pro). Passe `voz` = id de uma voz SALVA (via `listar_vozes`); omita p/ a padrão            |
+| **`listar_vozes`**  | lista as vozes SALVAS desta conta (nome + id) — grátis, read-only. É o que você mostra ao usuário              |
+| **`buscar_vozes`**  | busca no catálogo do ElevenLabs (premade + da conta) por `busca`/`idioma`/`genero` — read-only                 |
+| **`salvar_voz`**    | salva o `voiceId` (do catálogo) na lista DESTA conta — só no NOSSO banco, NADA é adicionado à conta ElevenLabs |
+| **`remover_voz`**   | tira uma voz da lista desta conta (não apaga da conta ElevenLabs)                                              |
+| **`obter_trilha`**  | trilha sonora oficial do motion (pack licenciado; URL temporária) — é onde o motion é cobrado                  |
+| **`obter_efeito`**  | efeito sonoro (SFX) do pack curado por `tags` (whoosh, transição…) — grátis, não cobra                         |
 
 **Computador online (workspace)** — espaço de arquivos por usuário, visível no site. Útil para quem não
 tem Claude Code: você organiza o trabalho em pastas e arquivos que o usuário acessa pela web. As peças

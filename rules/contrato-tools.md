@@ -132,7 +132,7 @@ no servidor) e **NÃO é tocada** — `salvar_voz` só grava o id no nosso banco
 que salvou.** Passe o `voiceId` da voz escolhida em `voz` no `gerar_locucao`.
 
 | Tool                               | Args                           | Retorno                                                                                             |
-| ---------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| ---------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------- |
 | `listar_vozes` (grátis, read-only) | `filtro?` (nome/id)            | as vozes SALVAS desta conta: `{ vozes: [{ voiceId, name }] }`                                       |
 | `buscar_vozes` (read-only)         | `busca?`, `idioma?`, `genero?` | catálogo do ElevenLabs (premade + da conta): `{ vozes: [{ voiceId, name, labels?, previewUrl? }] }` |
 | `salvar_voz`                       | `voiceId`, `nome`              | salva o id na lista (NOSSO banco): `{ voiceId, name }`                                              |
